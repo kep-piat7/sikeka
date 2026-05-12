@@ -224,7 +224,8 @@
       }
 
       .theme-toggle,
-      .back-btn {
+      .back-btn,
+      .action-btn {
         width: 40px;
         height: 40px;
         border-radius: 12px;
@@ -243,14 +244,20 @@
         color: var(--text-secondary);
       }
       .theme-toggle:hover,
-      .back-btn:hover {
+      .back-btn:hover,
+      .action-btn:hover {
         color: var(--brand-main);
         border-color: var(--brand-main);
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
       }
+      .action-btn.danger:hover {
+        color: var(--error-text);
+        border-color: var(--error-text);
+      }
       .theme-toggle svg,
-      .back-btn svg {
+      .back-btn svg,
+      .action-btn svg {
         width: 20px;
         height: 20px;
       }
@@ -726,7 +733,7 @@
 
     <div id="app-container">
       
-      <!-- SCREEN LOGIN GOOGLE (Penyebab bug sudah diperbaiki di baris ini) -->
+      <!-- SCREEN LOGIN GOOGLE -->
       <div id="loginScreen" class="screen active">
         <div class="dashboard-card" style="text-align:center; padding:40px 20px; width:100%;">
           <svg style="width:56px; height:56px; color:var(--brand-main); margin:0 auto 16px auto;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -746,6 +753,7 @@
           <h3 style="color:var(--text-primary); margin-top:0;">Akses Ditolak</h3>
           <p style="color:var(--text-secondary); font-size:15px; line-height:1.5;">Maaf, akun email <b style="color:var(--text-primary);"><span id="unauthEmail"></span></b> belum terdaftar di database sistem kami.</p>
           <p style="color:var(--text-secondary); font-size:14px; margin-bottom: 0;">Silakan hubungi Pengurus Sistem untuk mendaftarkan email Anda.</p>
+          <button class="btn btn-outline" style="margin: 24px auto 0 auto;" onclick="logout()">Kembali ke Halaman Login</button>
         </div>
       </div>
 
@@ -754,9 +762,17 @@
           <div class="nav-bar-left">
             <h2 class="room-title">Sistem Penilaian Kebersihan</h2>
           </div>
-          <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Dark Mode">
-            <span class="themeIconContainer"></span>
-          </button>
+          <!-- Area Tombol Tema & Logout -->
+          <div style="display: flex; gap: 8px;">
+            <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Dark Mode" title="Ganti Tema">
+              <span class="themeIconContainer"></span>
+            </button>
+            <button class="action-btn danger" onclick="confirmLogout()" aria-label="Logout" title="Keluar Akun">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         <div class="header-greeting">
@@ -1008,24 +1024,35 @@
       }
 
       // =========================================================================
-      // FUNGSI INISIALISASI & LOGIN GOOGLE
+      // FUNGSI INISIALISASI, LOGIN GOOGLE & AUTO-LOGIN
       // =========================================================================
       window.onload = function () {
         const isDark = document.documentElement.classList.contains("dark");
         document.querySelectorAll(".themeIconContainer").forEach((el) => { el.innerHTML = isDark ? iconMoon : iconSun; });
 
-        // Tampilkan tombol Google Login
-        if(typeof google !== 'undefined' && google.accounts) {
-          google.accounts.id.initialize({
-            client_id: GOOGLE_CLIENT_ID,
-            callback: handleCredentialResponse
-          });
-          google.accounts.id.renderButton(
-            document.getElementById("googleSignInBtn"),
-            { theme: "outline", size: "large", shape: "pill", width: 250 }
-          );
+        // CEK AUTO-LOGIN: Apakah sebelumnya sudah pernah login?
+        const savedEmail = localStorage.getItem("sikeka_user_email");
+
+        if (savedEmail) {
+          // Jika ada data sesi, langsung masuk
+          USER_EMAIL = savedEmail;
+          document.getElementById('loginScreen').classList.remove('active');
+          document.getElementById('globalLoader').style.display = 'flex';
+          initAppData();
         } else {
-           customAlert("Sistem gagal memuat modul Login Google. Pastikan Anda terkoneksi ke internet.");
+          // Jika belum ada sesi, tampilkan tombol Google Login
+          if(typeof google !== 'undefined' && google.accounts) {
+            google.accounts.id.initialize({
+              client_id: GOOGLE_CLIENT_ID,
+              callback: handleCredentialResponse
+            });
+            google.accounts.id.renderButton(
+              document.getElementById("googleSignInBtn"),
+              { theme: "outline", size: "large", shape: "pill", width: 250 }
+            );
+          } else {
+             customAlert("Sistem gagal memuat modul Login Google. Pastikan Anda terkoneksi ke internet.");
+          }
         }
       };
 
@@ -1043,12 +1070,27 @@
         const data = parseJwt(response.credential);
         USER_EMAIL = data.email;
 
+        // SIMPAN SESI LOGIN KE MEMORI HP
+        localStorage.setItem("sikeka_user_email", USER_EMAIL);
+
         // Tutup layar login, tampilkan loader
         document.getElementById('loginScreen').classList.remove('active');
         document.getElementById('globalLoader').style.display = 'flex';
 
         // Mulai ambil data dari Backend
         initAppData();
+      }
+
+      function logout() {
+        // Menghapus data sesi login dan mengulang halaman
+        localStorage.removeItem("sikeka_user_email");
+        window.location.reload();
+      }
+
+      function confirmLogout() {
+        customConfirm("Apakah Anda yakin ingin keluar dari akun sistem Sikeka ini?", function() {
+          logout();
+        }, "Konfirmasi Keluar");
       }
 
       function initAppData() {
@@ -1084,7 +1126,11 @@
           })
           .catch(function (error) {
             document.getElementById("globalLoader").style.display = "none";
-            customAlert("Gagal terhubung ke server database.<br><br>Pesan Sistem: " + error.message, "Akses Terblokir");
+            // Jika ada error jaringan/API, hapus sesi login yang mungkin rusak untuk menghindari loop error
+            localStorage.removeItem("sikeka_user_email");
+            customAlert("Gagal terhubung ke server database. Silakan muat ulang halaman.<br><br>Pesan Sistem: " + error.message, "Akses Terblokir", function() {
+              window.location.reload();
+            });
           });
       }
 
