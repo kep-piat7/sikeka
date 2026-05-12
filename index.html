@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>Sistem Penilaian Kebersihan</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Google Identity Services (Tombol Login Google) -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <script>
+      if (
+        localStorage.getItem("theme") === "dark" ||
+        (!localStorage.getItem("theme") &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches)
+      ) {
+        document.documentElement.classList.add("dark");
+      }
+    </script>
+
+    <style>
+      :root {
+        --color-strong-cyan-50: #e9fbfb;
+        --color-strong-cyan-100: #d4f7f7;
+        --color-strong-cyan-200: #a9eeef;
+        --color-strong-cyan-300: #7ee6e7;
+        --color-strong-cyan-400: #53dddf;
+        --color-strong-cyan-500: #28d5d7;
+        --color-strong-cyan-600: #20aaac;
+        --color-strong-cyan-700: #188081;
+        --color-strong-cyan-800: #105556;
+        --color-strong-cyan-900: #082b2b;
+        --color-strong-cyan-950: #061e1e;
+
+        --color-baltic-blue-50: #ecf3f8;
+        --color-baltic-blue-100: #dae7f1;
+        --color-baltic-blue-200: #b5cfe3;
+        --color-baltic-blue-300: #8fb7d6;
+        --color-baltic-blue-400: #6a9fc8;
+        --color-baltic-blue-500: #4587ba;
+        --color-baltic-blue-600: #376c95;
+        --color-baltic-blue-700: #295170;
+        --color-baltic-blue-800: #1c364a;
+        --color-baltic-blue-900: #0e1b25;
+        --color-baltic-blue-950: #0a131a;
+
+        --color-charcoal-blue-50: #eef3f6;
+        --color-charcoal-blue-100: #dee7ed;
+        --color-charcoal-blue-200: #bdd0db;
+        --color-charcoal-blue-300: #9cb8c9;
+        --color-charcoal-blue-400: #7aa0b8;
+        --color-charcoal-blue-500: #5988a6;
+        --color-charcoal-blue-600: #476d85;
+        --color-charcoal-blue-700: #365263;
+        --color-charcoal-blue-800: #243742;
+        --color-charcoal-blue-900: #121b21;
+        --color-charcoal-blue-950: #0c1317;
+
+        --color-blaze-orange-50: #feefe7;
+        --color-blaze-orange-500: #f15d0e;
+        --color-blaze-orange-600: #c14b0b;
+
+        --bg-body: var(--color-charcoal-blue-50);
+        --bg-surface: #ffffff;
+        --bg-surface-hover: var(--color-charcoal-blue-100);
+
+        --text-primary: var(--color-charcoal-blue-900);
+        --text-secondary: var(--color-charcoal-blue-600);
+        --text-muted: var(--color-charcoal-blue-400);
+
+        --border-subtle: var(--color-charcoal-blue-200);
+
+        --brand-main: var(--color-baltic-blue-600);
+        --brand-hover: var(--color-baltic-blue-700);
+        --brand-text: #ffffff;
+
+        --accent-main: var(--color-strong-cyan-600);
+
+        --error-bg: var(--color-blaze-orange-50);
+        --error-text: var(--color-blaze-orange-600);
+      }
+
+      html.dark {
+        --bg-body: var(--color-charcoal-blue-950);
+        --bg-surface: var(--color-charcoal-blue-900);
+        --bg-surface-hover: var(--color-charcoal-blue-800);
+
+        --text-primary: var(--color-charcoal-blue-50);
+        --text-secondary: var(--color-charcoal-blue-200);
+        --text-muted: var(--color-charcoal-blue-400);
+
+        --border-subtle: var(--color-charcoal-blue-800);
+
+        --brand-main: var(--color-baltic-blue-500);
+        --brand-hover: var(--color-baltic-blue-400);
+        --brand-text: var(--color-charcoal-blue-950);
+
+        --accent-main: var(--color-strong-cyan-500);
+
+        --error-bg: rgba(241, 93, 14, 0.1);
+        --error-text: var(--color-blaze-orange-400);
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: var(--bg-body);
+        color: var(--text-primary);
+        margin: 0;
+        padding: 0;
+        -webkit-font-smoothing: antialiased;
+        transition:
+          background-color 0.3s ease,
+          color 0.3s ease;
+      }
+
+      .flex-between {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      #app-container {
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+        min-height: 100vh;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        background: var(--bg-body);
+      }
+
+      .screen {
+        display: none;
+        padding: 24px;
+        padding-bottom: 120px;
+        animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .screen.active {
+        display: block;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* CSS Khusus Login Screen */
+      #loginScreen {
+        display: none;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 24px;
+      }
+      #loginScreen.active {
+        display: flex;
+      }
+
+      .header-greeting {
+        margin-bottom: 24px;
+        flex-shrink: 0;
+      }
+      .header-greeting .small {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text-secondary);
+        margin-bottom: 4px;
+        display: block;
+      }
+      .header-greeting .large {
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--brand-main);
+        letter-spacing: -0.02em;
+      }
+
+      .sticky-top {
+        position: sticky;
+        top: 0;
+        z-index: 40;
+        background: var(--bg-body);
+        padding: 20px 24px;
+        margin: -24px -24px 16px -24px;
+        border-bottom: 1px solid var(--border-subtle);
+        transition:
+          background-color 0.3s ease,
+          border-color 0.3s ease;
+      }
+      .nav-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .nav-bar-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .room-title {
+        font-size: 22px;
+        font-weight: 700;
+        margin: 0;
+        color: var(--text-primary);
+        letter-spacing: -0.01em;
+      }
+
+      .theme-toggle,
+      .back-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        flex-shrink: 0;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+        outline: none;
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        color: var(--text-secondary);
+      }
+      .theme-toggle:hover,
+      .back-btn:hover {
+        color: var(--brand-main);
+        border-color: var(--brand-main);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
+      .theme-toggle svg,
+      .back-btn svg {
+        width: 20px;
+        height: 20px;
+      }
+
+      .btn {
+        border: none;
+        padding: 14px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 15px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-family: inherit;
+      }
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none !important;
+        box-shadow: none !important;
+      }
+      .btn-small {
+        padding: 8px 16px;
+        font-size: 13px;
+        border-radius: 8px;
+      }
+      .btn-primary {
+        background: var(--brand-main);
+        color: var(--brand-text);
+        box-shadow: 0 4px 12px rgba(55, 108, 149, 0.2);
+      }
+      .btn-primary:hover:not(:disabled) {
+        background: var(--brand-hover);
+        transform: translateY(-1px);
+      }
+      .btn-outline {
+        background: transparent;
+        color: var(--text-secondary);
+        border: 1px solid var(--border-subtle);
+        box-shadow: none;
+      }
+      .btn-outline:hover:not(:disabled) {
+        background: var(--bg-surface-hover);
+        color: var(--text-primary);
+      }
+      .btn-danger {
+        background: var(--color-blaze-orange-500);
+        color: #ffffff;
+      }
+      .btn-danger:hover:not(:disabled) {
+        background: var(--color-blaze-orange-600);
+      }
+      .btn-success {
+        background: var(--accent-main);
+        color: var(--bg-body);
+      }
+      .btn-success:hover:not(:disabled) {
+        filter: brightness(0.9);
+      }
+
+      .dashboard-card {
+        background: var(--bg-surface);
+        border-radius: 16px;
+        margin-bottom: 16px;
+        padding: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        border: 1px solid var(--border-subtle);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .card-title {
+        font-size: 14px;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+      }
+      .list-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid var(--border-subtle);
+        font-size: 14px;
+        font-weight: 600;
+      }
+      .list-row:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+
+      .badge-score {
+        padding: 4px 10px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 700;
+        color: #fff;
+      }
+      .bg-top {
+        background-color: #10b981;
+      }
+      .bg-bottom {
+        background-color: var(--color-blaze-orange-500);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .table-hover tbody tr {
+        transition: background 0.2s;
+        cursor: pointer;
+        border-bottom: 1px solid var(--border-subtle);
+      }
+      .table-hover tbody tr:last-child {
+        border-bottom: none;
+      }
+      .table-hover tbody tr:hover {
+        background: var(--bg-surface-hover);
+      }
+      th {
+        padding: 14px 16px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        background: var(--bg-surface-hover);
+        letter-spacing: 0.05em;
+      }
+      td {
+        padding: 14px 16px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+      .rank-col {
+        color: var(--text-muted);
+        font-size: 13px;
+        width: 40px;
+      }
+
+      .sticky-footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: var(--bg-surface);
+        padding: 16px 0;
+        border-top: 1px solid var(--border-subtle);
+        z-index: 100;
+        transition: background 0.3s ease;
+      }
+      .footer-content {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 0 24px;
+        display: flex;
+        gap: 12px;
+      }
+
+      .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+      .calendar-month {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--brand-main);
+      }
+      .calendar-nav {
+        display: flex;
+        gap: 8px;
+      }
+      .calendar-nav-btn {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: 8px;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: var(--text-secondary);
+        transition: 0.2s;
+      }
+      .calendar-nav-btn:hover {
+        border-color: var(--brand-main);
+        color: var(--brand-main);
+      }
+
+      .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 4px;
+      }
+      .calendar-day-header {
+        text-align: center;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-muted);
+        padding-bottom: 8px;
+      }
+      .calendar-cell {
+        aspect-ratio: 1;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+        border: 1px solid transparent;
+        background: var(--bg-surface);
+        position: relative;
+        min-width: 0;
+        overflow: hidden;
+      }
+      .calendar-cell.empty {
+        background: transparent;
+        cursor: default;
+      }
+      .calendar-cell.available {
+        border-color: var(--border-subtle);
+        color: var(--text-primary);
+      }
+      .calendar-cell.available:hover {
+        border-color: var(--brand-main);
+        color: var(--brand-main);
+        transform: scale(1.05);
+      }
+      .calendar-cell.today.available {
+        border: 2px solid var(--accent-main);
+      }
+      .calendar-cell.booked {
+        background: var(--bg-body);
+        color: var(--text-muted);
+        cursor: not-allowed;
+        border: 1px dashed var(--border-subtle);
+        opacity: 0.7;
+      }
+
+      .booked-name {
+        font-size: 9px;
+        font-weight: 500;
+        text-transform: uppercase;
+        margin-top: 2px;
+        text-align: center;
+        line-height: 1;
+        padding: 0 1px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 100%;
+        display: block;
+        width: 100%;
+      }
+      .booked-dot {
+        width: 4px;
+        height: 4px;
+        background: var(--color-blaze-orange-500);
+        border-radius: 50%;
+        position: absolute;
+        top: 6px;
+        right: 6px;
+      }
+
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(12, 19, 23, 0.6);
+        backdrop-filter: blur(3px);
+        -webkit-backdrop-filter: blur(3px);
+        z-index: 10000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+      }
+      .modal-overlay.active {
+        display: flex;
+        opacity: 1;
+      }
+      .modal-box {
+        background: var(--bg-surface);
+        padding: 24px;
+        border-radius: 16px;
+        width: 90%;
+        max-width: 360px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        transform: scale(0.95);
+        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        border: 1px solid var(--border-subtle);
+        position: relative;
+      }
+      .modal-overlay.active .modal-box {
+        transform: scale(1);
+      }
+
+      .modal-close-btn {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        width: 32px;
+        height: 32px;
+        background: transparent;
+        border: none;
+        padding: 0;
+        color: var(--text-muted);
+        cursor: pointer;
+        border-radius: 8px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+      }
+      .modal-close-btn:hover {
+        color: var(--error-text);
+        background: var(--error-bg);
+      }
+
+      .modal-box h3 {
+        margin-top: 0;
+        margin-bottom: 12px;
+        color: var(--text-primary);
+        font-size: 18px;
+        font-weight: 700;
+        padding-right: 24px;
+      }
+      .modal-box p {
+        color: var(--text-secondary);
+        font-size: 14px;
+        margin-bottom: 24px;
+        line-height: 1.5;
+        margin-top: 0;
+      }
+      .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+      }
+
+      .form-page {
+        display: none;
+        animation: fadeIn 0.3s ease;
+      }
+      .form-page.active {
+        display: block;
+      }
+      .form-header-group {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--brand-main);
+        border-bottom: 2px solid var(--border-subtle);
+        padding-bottom: 8px;
+        margin-bottom: 16px;
+      }
+      .form-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      .form-row label {
+        font-weight: 600;
+        color: var(--text-primary);
+        font-size: 15px;
+      }
+      .form-row input[type="number"] {
+        width: 80px;
+        padding: 10px;
+        border: 1px solid var(--border-subtle);
+        border-radius: 8px;
+        background: var(--bg-surface);
+        color: var(--text-primary);
+        font-size: 15px;
+        text-align: center;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      .form-row input[type="number"]:focus {
+        border-color: var(--brand-main);
+        box-shadow: 0 0 0 3px rgba(55, 108, 149, 0.1);
+      }
+      .form-progress {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-align: center;
+        margin-bottom: 16px;
+      }
+
+      #globalLoader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--bg-body);
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 0.3s ease;
+        /* Tambahan agar loader hidden secara default saat render awal web */
+        display: none; 
+      }
+      .spinner {
+        border: 3px solid var(--border-subtle);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border-top-color: var(--brand-main);
+        animation: spin 1s cubic-bezier(0.55, 0.15, 0.45, 0.85) infinite;
+        margin-bottom: 16px;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      @media print {
+        body, html, #app-container, .screen {
+          height: auto !important; min-height: auto !important; overflow: visible !important;
+          background: #ffffff !important; display: block !important; position: static !important;
+        }
+        .nav-bar, .sticky-footer, .header-greeting, #globalLoader, #customModal, .print-hide {
+          display: none !important;
+        }
+        .screen:not(.active) { display: none !important; }
+        .screen.active { padding: 0 !important; display: block !important; }
+        * { color: #000000 !important; }
+        .print-show { display: block !important; }
+        .dashboard-card { border: none !important; box-shadow: none !important; padding: 0 !important; border-radius: 0 !important; margin: 0 !important; }
+        table { width: 100% !important; border-collapse: collapse !important; page-break-inside: auto; }
+        tr { page-break-inside: avoid; page-break-after: auto; }
+        thead { display: table-header-group; }
+        th { position: static !important; background-color: #f1f5f9 !important; font-weight: bold !important; -webkit-print-color-adjust: exact; border: 1px solid #ddd !important; }
+        th, td { border: 1px solid #ddd !important; padding: 10px !important; text-align: left; }
+        ::-webkit-scrollbar { display: none !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="globalLoader">
+      <div class="spinner"></div>
+      <div style="color: var(--text-secondary); font-weight: 600; font-size: 15px">Memuat Aplikasi...</div>
+    </div>
+
+    <div id="customModal" class="modal-overlay">
+      <div class="modal-box">
+        <button id="modalCloseBtn" class="modal-close-btn" onclick="closeCustomModal()">
+          <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+        <h3 id="modalTitle">Pemberitahuan</h3>
+        <p id="modalMessage">Pesan informasi</p>
+        <div class="modal-actions" id="modalActionsContainer"></div>
+      </div>
+    </div>
+
+    <div id="app-container">
+      
+      <!-- SCREEN LOGIN GOOGLE -->
+      <div id="loginScreen" class="screen active" style="display:flex; justify-content:center; align-items:center; min-height:100vh;">
+        <div class="dashboard-card" style="text-align:center; padding:40px 20px; width:100%;">
+          <svg style="width:56px; height:56px; color:var(--brand-main); margin:0 auto 16px auto;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+          <h2 style="color:var(--text-primary); margin-top:0; margin-bottom:8px;">Sikeka App</h2>
+          <p style="color:var(--text-secondary); font-size:14px; margin-bottom:24px;">Silakan otorisasi menggunakan akun Google Anda untuk masuk ke dalam sistem.</p>
+          <div id="googleSignInBtn" style="display:flex; justify-content:center;"></div>
+        </div>
+      </div>
+
+      <div id="unauthorizedScreen" class="screen">
+        <div class="dashboard-card" style="text-align: center; padding: 40px 20px; margin-top: 40px;">
+          <svg style="width:64px; height:64px; color:var(--error-text); margin:0 auto 16px auto;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <h3 style="color:var(--text-primary); margin-top:0;">Akses Ditolak</h3>
+          <p style="color:var(--text-secondary); font-size:15px; line-height:1.5;">Maaf, akun email <b style="color:var(--text-primary);"><span id="unauthEmail"></span></b> belum terdaftar di database sistem kami.</p>
+          <p style="color:var(--text-secondary); font-size:14px; margin-bottom: 0;">Silakan hubungi Pengurus Sistem untuk mendaftarkan email Anda.</p>
+        </div>
+      </div>
+
+      <div id="dashboardScreen" class="screen">
+        <div class="nav-bar sticky-top">
+          <div class="nav-bar-left">
+            <h2 class="room-title">Sistem Penilaian Kebersihan</h2>
+          </div>
+          <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Dark Mode">
+            <span class="themeIconContainer"></span>
+          </button>
+        </div>
+
+        <div class="header-greeting">
+          <span class="small">Ahlan wa Sahlan,</span>
+          <span class="large" id="dashUserSapaan">Ustadz ...</span>
+        </div>
+
+        <div class="dashboard-card">
+          <div class="card-title flex-between">
+            <span style="display: flex; align-items: center">
+              <svg style="color: #10b981; width: 20px; height: 20px; margin-right: 8px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 4h14l-1 6a6 6 0 01-12 0L5 4zM12 16v5M8 21h8" />
+              </svg>
+              <span style="color: var(--text-primary)">3 Kamar Terbaik</span>
+            </span>
+          </div>
+          <div id="top3Container">
+            <div class="list-row"><span style="color: var(--text-muted); font-weight: 400">Memuat data...</span></div>
+          </div>
+        </div>
+
+        <div class="dashboard-card">
+          <div class="card-title flex-between">
+            <span style="display: flex; align-items: center">
+              <svg style="color: #f15d0e; width: 20px; height: 20px; margin-right: 8px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <span style="color: var(--text-primary)">3 Kamar Terburuk</span>
+            </span>
+          </div>
+          <div id="bottom3Container">
+            <div class="list-row"><span style="color: var(--text-muted); font-weight: 400">Memuat data...</span></div>
+          </div>
+        </div>
+
+        <button class="btn btn-outline" style="width: 100%; margin-bottom: 24px" onclick="navTo('klasemenScreen')">
+          <svg style="width: 18px; height: 18px; margin-right: 8px" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="13" width="4" height="8" rx="2"></rect>
+            <rect x="10" y="9" width="4" height="12" rx="2"></rect>
+            <rect x="16" y="5" width="4" height="16" rx="2"></rect>
+          </svg>
+          Klasemen Lengkap
+        </button>
+      </div>
+
+      <div id="formScreen" class="screen">
+        <div class="nav-bar sticky-top">
+          <div class="nav-bar-left">
+            <button class="back-btn" onclick="navTo('dashboardScreen', true)">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
+            </button>
+            <h2 class="room-title">Penilaian Kebersihan</h2>
+          </div>
+          <button class="theme-toggle" onclick="toggleTheme()"><span class="themeIconContainer"></span></button>
+        </div>
+        <div class="form-progress" id="formProgressText">Halaman 1 dari X</div>
+        <div class="dashboard-card" style="padding: 20px" id="formPagesContainer"></div>
+        <div style="display: flex; gap: 12px; margin-top: 16px">
+          <button class="btn btn-outline" style="flex: 1" id="btnFormPrev" onclick="changeFormPage(-1)">Sebelumnya</button>
+          <button class="btn btn-primary" style="flex: 1" id="btnFormNext" onclick="changeFormPage(1)">Selanjutnya</button>
+        </div>
+      </div>
+
+      <div id="bookingScreen" class="screen">
+        <div class="nav-bar sticky-top">
+          <div class="nav-bar-left">
+            <button class="back-btn" onclick="navTo('dashboardScreen', true)">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
+            </button>
+            <h2 class="room-title">Booking Tanggal</h2>
+          </div>
+          <button class="theme-toggle" onclick="toggleTheme()"><span class="themeIconContainer"></span></button>
+        </div>
+        <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 24px;">Silakan pilih tanggal untuk mem-booking jadwal penilaian kebersihan.</p>
+        <div class="dashboard-card" style="padding: 16px">
+          <div class="calendar-header">
+            <div class="calendar-month" id="calMonthYear">Bulan Tahun</div>
+            <div class="calendar-nav">
+              <button class="calendar-nav-btn" onclick="changeMonth(-1)"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg></button>
+              <button class="calendar-nav-btn" onclick="changeMonth(1)"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg></button>
+            </div>
+          </div>
+          <div class="calendar-grid">
+            <div class="calendar-day-header">Min</div><div class="calendar-day-header">Sen</div><div class="calendar-day-header">Sel</div><div class="calendar-day-header">Rab</div><div class="calendar-day-header">Kam</div><div class="calendar-day-header">Jum</div><div class="calendar-day-header">Sab</div>
+          </div>
+          <div class="calendar-grid" id="calendarDays"></div>
+        </div>
+      </div>
+
+      <div id="klasemenScreen" class="screen">
+        <div class="nav-bar sticky-top print-hide">
+          <div class="nav-bar-left">
+            <button class="back-btn" onclick="navTo('dashboardScreen', true)">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
+            </button>
+            <h2 class="room-title" id="judulKlasemen">Klasemen Lengkap</h2>
+          </div>
+          <!-- Dropdown Bulan & Tombol Cetak -->
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <select id="bulanKlasemenDropdown" class="btn btn-outline btn-small print-hide" style="padding: 6px 30px 6px 12px; appearance: auto; cursor: pointer; background-color: var(--bg-surface); color: var(--text-primary);" onchange="loadKlasemenBulanIni()">
+              <!-- Opsi diisi otomatis via JS -->
+            </select>
+            <button class="btn btn-outline btn-small print-hide" onclick="cetakKlasemen()">
+              <svg style="width: 16px; height: 16px; margin-right: 4px" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg> Cetak
+            </button>
+          </div>
+        </div>
+
+        <h2 class="print-show" id="printJudulKlasemen" style="display: none; text-align: center; margin-bottom: 8px; font-size: 18px; font-weight: bold;">Klasemen Penilaian Kebersihan Kamar</h2>
+        <div class="print-show" id="printTimestamp" style="display: none; text-align: right; font-size: 12px; color: #666; margin-bottom: 12px; font-weight: 500;"></div>
+
+        <div class="dashboard-card" style="padding: 0; overflow: hidden; margin-top: 8px">
+          <table class="table-hover">
+            <thead>
+              <tr><th class="rank-col">Pos</th><th>Kamar</th><th style="text-align: right">Rata-rata</th></tr>
+            </thead>
+            <tbody id="fullKlasemenBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="detailKamarScreen" class="screen">
+        <div class="nav-bar sticky-top print-hide">
+          <div class="nav-bar-left">
+            <button class="back-btn" onclick="navTo('klasemenScreen', true)">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
+            </button>
+            <h2 class="room-title" id="detailKamarTitle">Nama Kamar</h2>
+          </div>
+          <button class="theme-toggle" onclick="toggleTheme()"><span class="themeIconContainer"></span></button>
+        </div>
+
+        <div class="dashboard-card" style="padding: 0; overflow: hidden; margin-top: 8px">
+          <table>
+            <thead>
+              <tr><th>Tanggal</th><th>Penginput</th><th style="text-align: right">Nilai</th></tr>
+            </thead>
+            <tbody id="detailKamarBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="exportScreen" class="screen">
+        <div class="nav-bar sticky-top print-hide">
+          <div class="nav-bar-left">
+            <button class="back-btn" onclick="navTo('dashboardScreen', true)">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+            </button>
+            <h2 class="room-title">Impor Data Excel</h2>
+          </div>
+          <button class="theme-toggle" onclick="toggleTheme()"><span class="themeIconContainer"></span></button>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <div class="dashboard-card" style="padding: 24px; border: 1px dashed var(--brand-main); background: var(--bg-body);">
+            <div style="display: flex; align-items: center; margin-bottom: 16px;">
+              <div style="background: var(--color-baltic-blue-100); padding: 12px; border-radius: 12px; margin-right: 16px;">
+                <svg style="width: 28px; height: 28px; color: var(--color-baltic-blue-700);" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+              </div>
+              <div>
+                <h3 style="margin: 0; font-size: 16px; color: var(--text-primary);">Impor Data Massal</h3>
+                <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--text-secondary);">Upload nilai menggunakan template Excel (.xlsx).</p>
+              </div>
+            </div>
+            
+            <button class="btn btn-outline" style="width: 100%; margin-bottom: 12px;" onclick="downloadTemplateExcel()">
+              <svg style="width: 18px; height: 18px; margin-right: 8px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+              1. Unduh Template
+            </button>
+
+            <input type="file" id="fileExcelInput" accept=".xlsx, .xls" style="display: none;" onchange="handleExcelUpload(event)">
+            <button class="btn btn-success" style="width: 100%;" onclick="document.getElementById('fileExcelInput').click()">
+              <svg style="width: 18px; height: 18px; margin-right: 8px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
+              2. Unggah File
+            </button>
+            <div id="uploadFileName" style="font-size: 12px; color: var(--text-secondary); text-align: center; margin-top: 8px; font-weight: 500;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sticky-footer" id="mainFooter" style="display:none;">
+        <div class="footer-content" id="footerActionContainer" style="display: flex; gap: 12px; align-items: center"></div>
+      </div>
+    </div>
+
+    <!-- LIBRARY PEMBACA EXCEL DI BROWSER -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <script>
+      // =========================================================================
+      // PENGATURAN API & GOOGLE LOGIN (WAJIB DIISI)
+      // =========================================================================
+      
+      const API_URL = "https://script.google.com/macros/s/AKfycbxSTxdco3HFv6qD07k262Yen64myCaRX28gezJCigRYCSm9aNbHC9Nv-ApQfLB5ykpAHA/exec";
+      const GOOGLE_CLIENT_ID = "582583731525-q3nc2v22sspdef6faqio3f9bou9f0ioa.apps.googleusercontent.com";
+      
+      // =========================================================================
+
+      const iconSun = `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>`;
+      const iconMoon = `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>`;
+
+      let USER_EMAIL = "";
+      let APP_DATA = null;
+      let CURRENT_USER = { nama: "Pengguna", namaLengkap: "Pengguna", email: "", role: "Ustadz", track: "Ustadz" };
+      let BOOKED_DATES = {};
+      let FULL_KLASEMEN = [];
+      let TODAY_STATE = { status: "empty", penginput: "" };
+
+      let SELECTED_MONTH = new Date().getMonth();
+      let SELECTED_YEAR = new Date().getFullYear();
+
+      let calCurrentDate = new Date();
+      let calViewMonth = calCurrentDate.getMonth();
+      let calViewYear = calCurrentDate.getFullYear();
+
+      let scrollStore = {};
+      let modalCloseTimeout;
+
+      const SYUQQOH_GROUPS = [
+        { name: "Syuqqoh Arafah", rooms: ["Arafah 1", "Arafah 2", "Arafah 3", "Arafah 4", "Arafah 5", "Arafah 6"] },
+        { name: "Syuqqoh Muzdalifah", rooms: ["Muzdalifah 1", "Muzdalifah 2", "Muzdalifah 3", "Muzdalifah 5", "Muzdalifah 6"] },
+        { name: "Syuqqoh Mina", rooms: ["Mina 1", "Mina 2", "Mina 3", "Mina 4", "Mina 5", "Mina 6"] },
+        { name: "Syuqqoh Thaif", rooms: ["Thaif 1", "Thaif 2", "Thaif 3", "Thaif 4", "Thaif 5", "Thaif 6"] },
+        { name: "Xativa & Sevilla", rooms: ["Xativa 1", "Xativa 2", "Xativa 4", "Sevilla 1", "Sevilla 2", "Sevilla 4"] },
+        { name: "Granada & Qordoba", rooms: ["Granada 1", "Granada 2", "Granada 3", "Granada 4", "Qordoba 2", "Qordoba 3", "Qordoba 4"] },
+        { name: "Awali & Uhud", rooms: ["Awali 1", "Uhud 1", "Uhud 2", "Uhud 3", "Uhud 4"] },
+      ];
+      let currentFormPage = 0;
+      let isSubmitting = false;
+
+      // =========================================================================
+      // JEMBATAN API FETCH (PENGGANTI google.script.run)
+      // =========================================================================
+      function callGasAPI(actionName, payloadData = {}) {
+        return fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" }, // Bypass CORS Google
+          body: JSON.stringify({
+            action: actionName,
+            email: USER_EMAIL,
+            payload: payloadData
+          })
+        })
+        .then(response => response.json())
+        .then(json => {
+          if (!json.success) throw new Error(json.message);
+          return json.data;
+        });
+      }
+
+      // =========================================================================
+      // FUNGSI INISIALISASI & LOGIN GOOGLE
+      // =========================================================================
+      window.onload = function () {
+        const isDark = document.documentElement.classList.contains("dark");
+        document.querySelectorAll(".themeIconContainer").forEach((el) => { el.innerHTML = isDark ? iconMoon : iconSun; });
+
+        // Tampilkan tombol Google Login
+        if(typeof google !== 'undefined' && google.accounts) {
+          google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: handleCredentialResponse
+          });
+          google.accounts.id.renderButton(
+            document.getElementById("googleSignInBtn"),
+            { theme: "outline", size: "large", shape: "pill", width: 250 }
+          );
+        } else {
+           customAlert("Sistem gagal memuat modul Login Google. Pastikan Anda terkoneksi ke internet.");
+        }
+      };
+
+      function parseJwt(token) {
+        var base64Url = token.split('.')[1];
+        var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(jsonPayload);
+      }
+
+      function handleCredentialResponse(response) {
+        // Dekode Token KTP Google untuk mendapatkan Email
+        const data = parseJwt(response.credential);
+        USER_EMAIL = data.email;
+
+        // Tutup layar login, tampilkan loader
+        document.getElementById('loginScreen').classList.remove('active');
+        document.getElementById('globalLoader').style.display = 'flex';
+
+        // Mulai ambil data dari Backend
+        initAppData();
+      }
+
+      function initAppData() {
+        callGasAPI("getInitData")
+          .then(function (data) {
+            if (data.isRegistered === false) {
+              document.getElementById('globalLoader').style.display = 'none';
+              document.getElementById('unauthEmail').innerText = data.user.email;
+              document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+              document.getElementById('unauthorizedScreen').classList.add('active');
+              document.getElementById('mainFooter').style.display = 'none';
+              return;
+            }
+
+            document.getElementById("globalLoader").style.display = "none";
+            APP_DATA = data; CURRENT_USER = data.user; BOOKED_DATES = data.bookedDates; FULL_KLASEMEN = data.klasemen.all; TODAY_STATE = data.todayState;
+
+            let prefixSapaan = CURRENT_USER.role === "JT" ? "" : "Ustadz ";
+            document.getElementById("dashUserSapaan").innerText = prefixSapaan + CURRENT_USER.nama;
+            
+            populateDropdown(data.availableMonths || []);
+
+            document.getElementById("judulKlasemen").innerText = "Klasemen " + data.bulanAktif;
+            document.getElementById("printJudulKlasemen").innerText = "Klasemen Penilaian Kebersihan Kamar - " + data.bulanAktif;
+
+            renderKlasemenDashboard(data.klasemen); 
+            renderKlasemenLengkap(FULL_KLASEMEN); 
+            renderFooterButtons();
+
+            navTo("dashboardScreen"); // Tampilkan dashboard utama
+
+            if (CURRENT_USER.role !== "JT") tampilkanPopupAwal();
+          })
+          .catch(function (error) {
+            document.getElementById("globalLoader").style.display = "none";
+            customAlert("Gagal terhubung ke server database.<br><br>Pesan Sistem: " + error.message, "Akses Terblokir");
+          });
+      }
+
+      // =========================================================================
+      // LOGIKA UI & NAVIGASI
+      // =========================================================================
+
+      function toggleTheme() {
+        document.documentElement.classList.toggle("dark");
+        const isDark = document.documentElement.classList.contains("dark");
+        localStorage.setItem("theme", isDark ? "dark" : "light");
+        document.querySelectorAll(".themeIconContainer").forEach((el) => { el.innerHTML = isDark ? iconMoon : iconSun; });
+      }
+
+      function navTo(screenId, isBackOrTab = false) {
+        const current = document.querySelector(".screen.active");
+        if (current) {
+          scrollStore[current.id] = window.scrollY || window.pageYOffset;
+          current.classList.remove("active");
+        }
+        const target = document.getElementById(screenId);
+        target.classList.add("active");
+        
+        // Footer tampil hanya di Dasbor
+        document.getElementById("mainFooter").style.display = screenId === "dashboardScreen" ? "block" : "none";
+
+        if (isBackOrTab && scrollStore[screenId] !== undefined) {
+          setTimeout(() => window.scrollTo(0, scrollStore[screenId]), 10);
+        } else { setTimeout(() => window.scrollTo(0, 0), 10); }
+
+        if (screenId === "bookingScreen") renderCalendar();
+        if (screenId === "formScreen") initializeFormPages();
+      }
+
+      function reloadSystemData() {
+        document.getElementById("globalLoader").style.display = "flex";
+        callGasAPI("getInitData")
+          .then(function (data) {
+            if (data.isRegistered === false) {
+              document.getElementById('globalLoader').style.display = 'none';
+              document.getElementById('unauthEmail').innerText = data.user.email;
+              document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+              document.getElementById('unauthorizedScreen').classList.add('active');
+              document.getElementById('mainFooter').style.display = 'none';
+              return;
+            }
+
+            document.getElementById("globalLoader").style.display = "none";
+            APP_DATA = data; CURRENT_USER = data.user; BOOKED_DATES = data.bookedDates; FULL_KLASEMEN = data.klasemen.all; TODAY_STATE = data.todayState;
+
+            let prefixSapaan = CURRENT_USER.role === "JT" ? "" : "Ustadz ";
+            document.getElementById("dashUserSapaan").innerText = prefixSapaan + CURRENT_USER.nama;
+            
+            populateDropdown(data.availableMonths);
+
+            document.getElementById("judulKlasemen").innerText = "Klasemen " + data.bulanAktif;
+            document.getElementById("printJudulKlasemen").innerText = "Klasemen Penilaian Kebersihan Kamar - " + data.bulanAktif;
+
+            renderKlasemenDashboard(data.klasemen); 
+            renderKlasemenLengkap(FULL_KLASEMEN); 
+            renderFooterButtons(); 
+            renderCalendar(); 
+            navTo("dashboardScreen");
+          })
+          .catch(function (error) {
+            document.getElementById("globalLoader").style.display = "none";
+            customAlert("Gagal merefresh data: " + error.message);
+          });
+      }
+
+      function cetakKlasemen() {
+        const now = new Date();
+        const options = { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" };
+        document.getElementById("printTimestamp").innerText = `Dicetak pada: ${now.toLocaleDateString("id-ID", options)} WIB`;
+        window.print();
+      }
+
+      function closeCustomModal() {
+        var overlay = document.getElementById("customModal");
+        overlay.classList.remove("active");
+        modalCloseTimeout = setTimeout(() => (overlay.style.display = "none"), 200);
+      }
+
+      function showDynamicModal(title, message, buttonsHTML, showCloseBtn = false) {
+        clearTimeout(modalCloseTimeout);
+        var overlay = document.getElementById("customModal");
+        document.getElementById("modalTitle").innerText = title;
+        document.getElementById("modalMessage").innerHTML = message;
+        document.getElementById("modalActionsContainer").innerHTML = buttonsHTML;
+        document.getElementById("modalCloseBtn").style.display = showCloseBtn ? "flex" : "none";
+        overlay.style.display = "flex"; void overlay.offsetWidth; overlay.classList.add("active");
+      }
+
+      function customAlert(message, title = "Pemberitahuan", callback = null) {
+        window.tempCallback = function () { closeCustomModal(); if (callback) callback(); };
+        showDynamicModal(title, message, `<button class="btn btn-primary btn-small" onclick="window.tempCallback()">OK</button>`);
+      }
+
+      function customConfirm(message, onConfirm, title = "Konfirmasi") {
+        window.tempConfirm = function () { closeCustomModal(); if (onConfirm) onConfirm(); };
+        showDynamicModal(title, message, `<button class="btn btn-outline btn-small" onclick="closeCustomModal()">Batal</button><button class="btn btn-danger btn-small" onclick="window.tempConfirm()">Ya, Lanjutkan</button>`);
+      }
+
+      function populateDropdown(monthsArray) {
+        let dd = document.getElementById("bulanKlasemenDropdown");
+        if (!dd) return;
+        dd.innerHTML = "";
+        
+        if (!monthsArray || monthsArray.length === 0) {
+           let opt = document.createElement("option");
+           opt.value = SELECTED_YEAR + "-" + SELECTED_MONTH;
+           opt.text = "Bulan Ini";
+           dd.appendChild(opt);
+        } else {
+           monthsArray.forEach(m => {
+             let opt = document.createElement("option");
+             opt.value = m.value;
+             opt.text = m.label;
+             dd.appendChild(opt);
+           });
+        }
+        dd.value = SELECTED_YEAR + "-" + SELECTED_MONTH;
+      }
+
+      function loadKlasemenBulanIni() {
+        let val = document.getElementById("bulanKlasemenDropdown").value;
+        if (!val) return;
+        
+        let pts = val.split("-");
+        SELECTED_YEAR = parseInt(pts[0]);
+        SELECTED_MONTH = parseInt(pts[1]);
+
+        document.getElementById("globalLoader").style.display = "flex";
+        
+        callGasAPI("getKlasemenBulan", { targetMonth: SELECTED_MONTH, targetYear: SELECTED_YEAR })
+          .then(function (res) {
+            document.getElementById("globalLoader").style.display = "none";
+            FULL_KLASEMEN = res.klasemen.all;
+            document.getElementById("judulKlasemen").innerText = "Klasemen " + res.bulanAktif;
+            document.getElementById("printJudulKlasemen").innerText = "Klasemen Penilaian Kebersihan Kamar - " + res.bulanAktif;
+            renderKlasemenLengkap(FULL_KLASEMEN);
+          })
+          .catch(function (error) {
+            document.getElementById("globalLoader").style.display = "none";
+            customAlert("Gagal memuat data klasemen: " + error.message);
+          });
+      }
+
+      function renderFooterButtons() {
+        let html = "";
+
+        if (CURRENT_USER.role === "JT") {
+          html = `
+          <button class="btn btn-primary" style="flex: 1; font-size: 16px; height: 60px; border-radius: 16px;" onclick="navTo('exportScreen')">
+            <svg style="width:24px; height:24px; margin-right:8px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+            Impor Data
+          </button>`;
+        } else if (CURRENT_USER.role === "Admin") {
+          let btnText = "Mulai Penilaian"; let btnDisabled = ""; let btnClass = "btn-primary";
+          if (TODAY_STATE.status === "filled") { btnText = "Selesai"; btnDisabled = "disabled"; } 
+          else if (TODAY_STATE.status === "booked_by_other") { btnText = "Jadwal " + TODAY_STATE.penginput; btnDisabled = "disabled"; }
+
+          html = `
+          <button class="btn btn-danger" style="width: 60px; height: 60px; border-radius: 16px; padding: 0; flex-shrink: 0;" onclick="navTo('bookingScreen')" title="Booking Tanggal">
+            <svg style="width:28px; height:28px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+          </button>
+          <button class="btn ${btnClass}" style="flex: 1; font-size: 14px; height: 60px; border-radius: 16px;" onclick="navTo('formScreen')" ${btnDisabled}>
+            <svg style="width:20px; height:20px; margin-right:6px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+            ${btnText}
+          </button>
+          <button class="btn btn-success" style="width: 60px; height: 60px; border-radius: 16px; padding: 0; flex-shrink: 0;" onclick="navTo('exportScreen')" title="Impor Data Excel">
+             <svg style="width:28px; height:28px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+          </button>`;
+        } else {
+          let btnText = "Mulai Penilaian"; let btnDisabled = ""; let btnClass = "btn-primary";
+          if (TODAY_STATE.status === "filled") { btnText = "Selesai Dinilai Hari Ini"; btnDisabled = "disabled"; } 
+          else if (TODAY_STATE.status === "booked_by_other") { btnText = "Jadwal " + TODAY_STATE.penginput; btnDisabled = "disabled"; }
+
+          html = `
+          <button class="btn btn-danger" style="width: 60px; height: 60px; border-radius: 16px; padding: 0; flex-shrink: 0;" onclick="navTo('bookingScreen')" title="Booking Tanggal">
+            <svg style="width:28px; height:28px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+          </button>
+          <button class="btn ${btnClass}" style="flex: 1; font-size: 16px; height: 60px; border-radius: 16px;" onclick="navTo('formScreen')" ${btnDisabled}>
+            <svg style="width:24px; height:24px; margin-right:8px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+            ${btnText}
+          </button>`;
+        }
+        document.getElementById("footerActionContainer").innerHTML = html;
+      }
+
+      function tampilkanPopupAwal() {
+        let title = "Ahlan wa Sahlan!";
+        let msg = "Anda belum mem-booking jadwal untuk hari ini. Anda bisa mengecek Kalender Booking terlebih dahulu, atau langsung memulai form jika jadwal sedang kosong.";
+        window.goToBooking = function () { closeCustomModal(); navTo("bookingScreen"); };
+        window.goToFormAction = function () { closeCustomModal(); navTo("formScreen"); };
+
+        let buttons = `<button class="btn btn-outline btn-small" onclick="window.goToBooking()">📅 Kalender</button><button class="btn btn-primary btn-small" onclick="window.goToFormAction()">Mulai Form</button>`;
+
+        if (TODAY_STATE.status === "filled") {
+          title = "Info Penilaian"; msg = "Alhamdulillah, data penilaian kebersihan untuk hari ini sudah berhasil diinput dan masuk ke sistem.";
+          buttons = `<button class="btn btn-primary btn-small" onclick="closeCustomModal()">Tutup</button>`;
+        } else if (TODAY_STATE.status === "booked_by_me") {
+          title = "Jadwal Anda Hari Ini!";
+          let prefixSapaan = CURRENT_USER.role === "JT" ? "" : "Ustadz ";
+          msg = `Semangat bertugas ${prefixSapaan}<b>${CURRENT_USER.nama}</b>! Berdasarkan sistem, hari ini adalah jadwal antum untuk mengisi form Penilaian Kebersihan Kamar.`;
+          buttons = `<button class="btn btn-outline btn-small" onclick="closeCustomModal()">Tutup</button><button class="btn btn-primary btn-small" onclick="window.goToFormAction()">Mulai Form</button>`;
+        } else if (TODAY_STATE.status === "booked_by_other") {
+          title = "Informasi Jadwal";
+          msg = `Jadwal penilaian hari ini telah di-booking oleh <b>${TODAY_STATE.penginput}</b>. Anda tetap dapat mengakses aplikasi atau melihat kalender untuk mem-booking hari lain.`;
+          buttons = `<button class="btn btn-outline btn-small" onclick="closeCustomModal()">Tutup</button><button class="btn btn-danger btn-small" onclick="window.goToBooking()">Lihat Kalender</button>`;
+        }
+        showDynamicModal(title, msg, buttons, true);
+      }
+
+      function initializeFormPages() {
+        currentFormPage = 0; let container = document.getElementById("formPagesContainer"); let html = "";
+        SYUQQOH_GROUPS.forEach((group, index) => {
+          let displayState = index === 0 ? "active" : "";
+          html += `<div class="form-page ${displayState}" id="formPage_${index}"><div class="form-header-group">${group.name}</div>`;
+          group.rooms.forEach((room) => {
+            html += `<div class="form-row"><label>${room}</label><input type="number" id="inp_${room.replace(/\s+/g, "_")}" min="0" max="100" placeholder="-"></div>`;
+          });
+          html += `</div>`;
+        });
+        container.innerHTML = html; updateFormNavigation();
+      }
+
+      function changeFormPage(direction) {
+        document.getElementById(`formPage_${currentFormPage}`).classList.remove("active");
+        currentFormPage += direction;
+        if (currentFormPage >= SYUQQOH_GROUPS.length) {
+          currentFormPage = SYUQQOH_GROUPS.length - 1; document.getElementById(`formPage_${currentFormPage}`).classList.add("active");
+          if (isSubmitting) return;
+          customConfirm("Apakah Anda yakin data penilaian sudah benar dan ingin menyimpannya? Anda tidak bisa mengedit kembali setelah ini.", function () { executeSavePenilaian(); }, "Simpan Penilaian");
+          return;
+        }
+        document.getElementById(`formPage_${currentFormPage}`).classList.add("active"); window.scrollTo(0, 0); updateFormNavigation();
+      }
+
+      function updateFormNavigation() {
+        document.getElementById("formProgressText").innerText = `Halaman ${currentFormPage + 1} dari ${SYUQQOH_GROUPS.length}`;
+        let btnPrev = document.getElementById("btnFormPrev"); let btnNext = document.getElementById("btnFormNext");
+        if (currentFormPage === 0) btnPrev.style.display = "none"; else btnPrev.style.display = "block";
+        if (currentFormPage === SYUQQOH_GROUPS.length - 1) { btnNext.className = "btn btn-success"; btnNext.innerText = "Simpan"; } 
+        else { btnNext.className = "btn btn-primary"; btnNext.innerText = "Selanjutnya"; }
+      }
+
+      function executeSavePenilaian() {
+        let hasError = false; let errorPageIndex = -1; let payload = {};
+        for (let i = 0; i < SYUQQOH_GROUPS.length; i++) {
+          let group = SYUQQOH_GROUPS[i];
+          for (let j = 0; j < group.rooms.length; j++) {
+            let room = group.rooms[j]; let val = document.getElementById(`inp_${room.replace(/\s+/g, "_")}`).value;
+            if (val.trim() === "") { hasError = true; if (errorPageIndex === -1) errorPageIndex = i; }
+            payload[room] = val;
+          }
+        }
+        if (hasError) {
+          customAlert("Ada kamar yang belum dinilai. Silakan lengkapi seluruh penilaian kamar terlebih dahulu.", "Data Belum Lengkap", function () {
+              document.getElementById(`formPage_${currentFormPage}`).classList.remove("active"); currentFormPage = errorPageIndex;
+              document.getElementById(`formPage_${currentFormPage}`).classList.add("active"); window.scrollTo(0, 0); updateFormNavigation();
+            }); return;
+        }
+        isSubmitting = true; document.getElementById("globalLoader").style.display = "flex";
+        
+        callGasAPI("savePenilaian", { penilaianMap: payload })
+          .then(function (res) {
+            isSubmitting = false;
+            customAlert("Data penilaian hari ini berhasil disimpan!", "Alhamdulillah", function () { reloadSystemData(); });
+          })
+          .catch(function (error) {
+            isSubmitting = false; document.getElementById("globalLoader").style.display = "none";
+            customAlert("Terjadi kesalahan jaringan: " + error.message);
+          });
+      }
+
+      function renderKlasemenDashboard(data) {
+        let topHtml = "";
+        if (data.top3.length === 0) topHtml = `<div class="list-row"><span style="color:var(--text-muted); font-weight:400;">Belum ada data...</span></div>`;
+        data.top3.forEach((item, index) => { topHtml += `<div class="list-row"><span><span style="color:var(--text-muted); margin-right:8px;">${index + 1}</span> ${item.kamar}</span><span class="badge-score bg-top">${item.nilai}</span></div>`; });
+        document.getElementById("top3Container").innerHTML = topHtml;
+
+        let bottomHtml = "";
+        if (data.bottom3.length === 0) bottomHtml = `<div class="list-row"><span style="color:var(--text-muted); font-weight:400;">Belum ada data...</span></div>`;
+        data.bottom3.forEach((item, index) => {
+          let rankAkurat = data.all.length - data.bottom3.length + index + 1;
+          bottomHtml += `<div class="list-row"><span><span style="color:var(--text-muted); margin-right:8px;">${rankAkurat}</span> ${item.kamar}</span><span class="badge-score bg-bottom">${item.nilai}</span></div>`;
+        });
+        document.getElementById("bottom3Container").innerHTML = bottomHtml;
+      }
+
+      function renderKlasemenLengkap(allData) {
+        let html = "";
+        if (allData.length === 0) { html = `<tr><td colspan=\"3\" style=\"text-align:center; color:var(--text-muted); font-weight:400;\">Belum ada data penilaian</td></tr>`; } 
+        else {
+          allData.forEach((item, index) => {
+            let pos = index + 1; let badgeClass = "badge-score";
+            if (pos <= 3) badgeClass += " bg-top"; else if (pos >= allData.length - 2 && allData.length > 5) badgeClass += " bg-bottom"; else badgeClass += " bg-baltic";
+            let scoreHtml = `<span class="${badgeClass}" style="${badgeClass.includes("bg-baltic") ? "background:var(--brand-main);" : ""}">${item.nilai}</span>`;
+            html += `<tr onclick="bukaDetailKamar('${item.kamar}')"><td class="rank-col">${pos}</td><td>${item.kamar}</td><td style="text-align: right;">${scoreHtml}</td></tr>`;
+          });
+        }
+        document.getElementById("fullKlasemenBody").innerHTML = html;
+      }
+
+      function bukaDetailKamar(roomName) {
+        document.getElementById("globalLoader").style.display = "flex"; 
+        document.getElementById("detailKamarTitle").innerText = "Detail " + roomName;
+        
+        callGasAPI("getRoomHistory", { roomName: roomName, filterMonth: SELECTED_MONTH, filterYear: SELECTED_YEAR })
+          .then(function (history) {
+            document.getElementById("globalLoader").style.display = "none"; let html = "";
+            if (history.length === 0) { html = `<tr><td colspan=\"3\" style=\"text-align:center; color:var(--text-muted); font-weight:400;\">Tidak ada riwayat di bulan ini</td></tr>`; } 
+            else {
+              history.forEach((item) => { html += `<tr><td style="font-size:13px; color:var(--text-secondary);">${item.tanggal}</td><td>${item.penginput}</td><td style="text-align: right; font-weight:700; color:var(--brand-main);">${item.nilai}</td></tr>`; });
+            }
+            document.getElementById("detailKamarBody").innerHTML = html; 
+            navTo("detailKamarScreen");
+          })
+          .catch(function (error) {
+            document.getElementById("globalLoader").style.display = "none";
+            customAlert("Gagal memuat detail: " + error.message);
+          });
+      }
+
+      function changeMonth(dir) {
+        calViewMonth += dir;
+        if (calViewMonth < 0) { calViewMonth = 11; calViewYear--; } else if (calViewMonth > 11) { calViewMonth = 0; calViewYear++; }
+        renderCalendar();
+      }
+
+      function renderCalendar() {
+        const NAMA_BULAN = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        const NAMA_HARI = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+        function getFormatDateKey(d) { return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, "0")}-${d.getDate().toString().padStart(2, "0")}`; }
+
+        document.getElementById("calMonthYear").innerText = `${NAMA_BULAN[calViewMonth]} ${calViewYear}`;
+        const firstDay = new Date(calViewYear, calViewMonth, 1).getDay(); const daysInMonth = new Date(calViewYear, calViewMonth + 1, 0).getDate();
+        let html = ""; const todayKey = getFormatDateKey(new Date());
+
+        for (let i = 0; i < firstDay; i++) { html += `<div class="calendar-cell empty"></div>`; }
+        for (let day = 1; day <= daysInMonth; day++) {
+          const loopDate = new Date(calViewYear, calViewMonth, day); const dateKey = getFormatDateKey(loopDate); const isToday = dateKey === todayKey ? "today" : "";
+          loopDate.setHours(23, 59, 59, 999); const isPast = loopDate < new Date();
+
+          if (BOOKED_DATES[dateKey]) {
+            html += `<div class="calendar-cell booked ${isToday}"><div class="booked-dot"></div>${day}<span class="booked-name">${BOOKED_DATES[dateKey].substring(0, 6)}..</span></div>`;
+          } else if (isPast) {
+            html += `<div class="calendar-cell empty" style="color:var(--text-muted); opacity:0.5;">${day}</div>`;
+          } else {
+            let paramDateStr = `${NAMA_HARI[loopDate.getDay()]}, ${day} ${NAMA_BULAN[calViewMonth]} ${calViewYear}`;
+            html += `<div class="calendar-cell available ${isToday}" onclick="prosesBooking('${dateKey}', '${paramDateStr}')">${day}</div>`;
+          }
+        }
+        document.getElementById("calendarDays").innerHTML = html;
+      }
+
+      function prosesBooking(dateKey, displayStr) {
+        customConfirm(`Apakah Anda ingin mem-booking jadwal penilaian kebersihan pada hari:\n\n<b>${displayStr}</b>?`, function () {
+            document.getElementById("globalLoader").style.display = "flex";
+            
+            callGasAPI("submitBooking", { dateKey: dateKey, namaUser: CURRENT_USER.namaLengkap })
+              .then(function (res) {
+                document.getElementById("globalLoader").style.display = "none";
+                BOOKED_DATES[dateKey] = CURRENT_USER.namaLengkap; 
+                customAlert(`Booking berhasil untuk tanggal ${displayStr}!`, "Sukses", function () { reloadSystemData(); }); 
+              })
+              .catch(function (error) {
+                document.getElementById("globalLoader").style.display = "none";
+                customAlert("Gagal Booking: " + error.message);
+              });
+          }, "Konfirmasi Booking");
+      }
+      
+      function downloadTemplateExcel() {
+        document.getElementById("globalLoader").style.display = "flex";
+        
+        callGasAPI("getRoomHeaders")
+          .then(function (roomNames) {
+            document.getElementById("globalLoader").style.display = "none";
+            var headerRow = ["Tanggal"].concat(roomNames);
+            var ws = XLSX.utils.aoa_to_sheet([headerRow]); var wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Template");
+            XLSX.writeFile(wb, "Template_Impor_Sikeka.xlsx");
+          })
+          .catch(function(error) {
+            document.getElementById("globalLoader").style.display = "none";
+            customAlert("Gagal mengunduh template: " + error.message);
+          });
+      }
+
+      function handleExcelUpload(event) {
+        var file = event.target.files[0]; if (!file) return;
+        if (!file.name.endsWith(".xlsx") && !file.name.endsWith(".xls")) {
+          customAlert("Format file salah. Harap unggah file Excel (.xlsx atau .xls).", "Gagal"); event.target.value = ""; return;
+        }
+        document.getElementById("uploadFileName").innerText = "File siap: " + file.name;
+
+        customConfirm("Data dari file <b>" + file.name + "</b> akan ditambahkan ke sistem sebagai data baru. Lanjutkan?", function () {
+            document.getElementById("globalLoader").style.display = "flex"; var reader = new FileReader();
+            reader.onload = function (e) {
+              var data = new Uint8Array(e.target.result); var workbook = XLSX.read(data, {type: 'array'});
+              var firstSheetName = workbook.SheetNames[0]; var worksheet = workbook.Sheets[firstSheetName];
+              var excelData = XLSX.utils.sheet_to_json(worksheet, {header: 1, raw: false});
+              
+              callGasAPI("importDataExcel", { excelData: excelData })
+                .then(function (res) {
+                  document.getElementById("globalLoader").style.display = "none";
+                  var pesanSukses = "Berhasil mengimpor <b>" + res.count + "</b> baris data baru ke sistem!";
+                  if (res.skipped > 0) { pesanSukses += "<br><br><span style='color:var(--error-text); font-size:13px;'><b>Info:</b> " + res.skipped + " baris data dilewati (skip) karena tanggal tersebut sudah ada di jalur antum (Mencegah duplikat).</span>"; }
+                  customAlert(pesanSukses, "Laporan Impor", function () { reloadSystemData(); });
+                  
+                  document.getElementById("fileExcelInput").value = ""; document.getElementById("uploadFileName").innerText = "";
+                })
+                .catch(function (error) {
+                  document.getElementById("globalLoader").style.display = "none"; 
+                  customAlert("Error jaringan: " + error.message); document.getElementById("fileExcelInput").value = "";
+                });
+            };
+            reader.readAsArrayBuffer(file);
+          }, "Konfirmasi Impor");
+      }
+    </script>
+  </body>
+</html>
