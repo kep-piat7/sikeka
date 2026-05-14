@@ -1,297 +1,62 @@
 <!doctype html>
 <html lang="id">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-    <title>Sikeka App</title>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>Sikeka App</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <link rel="stylesheet" href="style.css" />
 
-    <script>
-      if (localStorage.getItem("theme") === "dark" || (!localStorage.getItem("theme") && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
-        document.documentElement.classList.add("dark");
-      }
-    </script>
+  <script>
+    if (localStorage.getItem("theme") === "dark" || (!localStorage.getItem("theme") && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+      document.documentElement.classList.add("dark");
+    }
+  </script>
+</head>
+<body>
 
-    <style>
-      :root {
-        /* B2B SAAS LIGHT THEME */
-        --bg-body: #f4f4f5;      /* Zinc 100 */
-        --bg-surface: #ffffff;
-        
-        --text-primary: #09090b; /* Zinc 950 */
-        --text-secondary: #52525b; /* Zinc 500 */
-        --text-muted: #a1a1aa;   /* Zinc 400 */
-        
-        --border-color: #e4e4e7; /* Zinc 200 */
-        --border-focus: #2563eb; /* Blue 600 */
-        
-        --primary-main: #2563eb; /* Blue 600 */
-        --primary-hover: #1d4ed8; /* Blue 700 */
-        --primary-text: #ffffff;
-        
-        --success-main: #10b981;
-        --success-bg: #d1fae5;
-        --success-text: #065f46;
-
-        --danger-main: #ef4444;
-        --danger-bg: #fee2e2;
-        --danger-text: #991b1b;
-        
-        --radius-sm: 6px;
-        --radius-md: 10px;
-        --radius-lg: 14px;
-        
-        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-      }
-
-      html.dark {
-        /* B2B SAAS DARK THEME (Inspired by Twain dark mode ref) */
-        --bg-body: #09090b;      /* Zinc 950 */
-        --bg-surface: #18181b;   /* Zinc 900 */
-        
-        --text-primary: #f4f4f5; /* Zinc 100 */
-        --text-secondary: #a1a1aa; /* Zinc 400 */
-        --text-muted: #52525b;   /* Zinc 500 */
-        
-        --border-color: #27272a; /* Zinc 800 */
-        --border-focus: #3b82f6; /* Blue 500 */
-        
-        --primary-main: #2563eb; /* Blue 600 */
-        --primary-hover: #3b82f6; /* Blue 500 */
-        --primary-text: #ffffff;
-
-        --success-main: #10b981;
-        --success-bg: #064e3b;
-        --success-text: #34d399;
-
-        --danger-main: #ef4444;
-        --danger-bg: #450a0a;
-        --danger-text: #f87171;
-      }
-
-      * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Inter', sans-serif; }
-
-      body {
-        background-color: var(--bg-body);
-        color: var(--text-primary);
-        margin: 0; padding: 0;
-        -webkit-font-smoothing: antialiased;
-        overflow-y: scroll;
-      }
-
-      #app-container {
-        width: 100%; max-width: 500px; margin: 0 auto;
-        min-height: 100vh; position: relative;
-        padding-bottom: 80px; /* Space for fixed bottom nav */
-        background: var(--bg-body);
-      }
-
-      .screen {
-        display: none; padding: 20px 16px;
-        animation: fadeIn 0.3s ease;
-      }
-      .screen.active { display: block; }
-      @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-      /* HEADER / TOP BAR */
-      .top-bar {
-        display: flex; justify-content: space-between; align-items: center;
-        margin-bottom: 24px; padding-bottom: 12px;
-        border-bottom: 1px solid var(--border-color);
-      }
-      .top-bar-title { font-size: 18px; font-weight: 700; margin: 0; letter-spacing: -0.02em; }
-      
-      .icon-btn {
-        width: 36px; height: 36px; border-radius: var(--radius-sm);
-        border: 1px solid var(--border-color); background: var(--bg-surface);
-        color: var(--text-secondary); display: flex; align-items: center; justify-content: center;
-        cursor: pointer; transition: 0.2s; box-shadow: var(--shadow-sm);
-      }
-      .icon-btn:active { background: var(--bg-body); }
-      .icon-btn svg { width: 18px; height: 18px; }
-
-      /* TYPOGRAPHY */
-      .greeting-section { margin-bottom: 24px; }
-      .greeting-title { font-size: 24px; font-weight: 800; margin: 0 0 4px 0; letter-spacing: -0.03em; }
-      .greeting-sub { font-size: 14px; color: var(--text-secondary); margin: 0; }
-
-      /* CARDS (SaaS Style) */
-      .card {
-        background: var(--bg-surface);
-        border: 1px solid var(--border-color);
-        border-radius: var(--radius-md);
-        padding: 20px; margin-bottom: 16px;
-        box-shadow: var(--shadow-sm);
-      }
-      .card-header {
-        display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;
-      }
-      .card-title { font-size: 14px; font-weight: 600; color: var(--text-primary); margin: 0; }
-      
-      /* DATA LISTS */
-      .data-row {
-        display: flex; justify-content: space-between; align-items: center;
-        padding: 12px 0; border-bottom: 1px solid var(--border-color);
-      }
-      .data-row:last-child { border-bottom: none; padding-bottom: 0; }
-      .data-row-main { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 500; }
-      .data-rank { color: var(--text-muted); font-weight: 600; width: 16px; }
-      
-      .badge {
-        padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;
-      }
-      .badge-success { background: var(--success-bg); color: var(--success-text); }
-      .badge-danger { background: var(--danger-bg); color: var(--danger-text); }
-      .badge-neutral { background: var(--bg-body); color: var(--text-secondary); border: 1px solid var(--border-color); }
-
-      /* TABLES (For Klasemen) */
-      table { width: 100%; border-collapse: collapse; }
-      th { text-align: left; padding: 12px 0; font-size: 12px; font-weight: 500; color: var(--text-secondary); border-bottom: 1px solid var(--border-color); }
-      td { padding: 16px 0; font-size: 14px; font-weight: 500; border-bottom: 1px solid var(--border-color); }
-      tr:last-child td { border-bottom: none; }
-      tr[onclick] { cursor: pointer; transition: background 0.2s; }
-      tr[onclick]:active { background: var(--bg-body); }
-
-      /* BUTTONS */
-      .btn {
-        width: 100%; padding: 12px 16px; border-radius: var(--radius-sm); border: none;
-        font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s;
-        display: flex; align-items: center; justify-content: center; gap: 8px;
-      }
-      .btn:active { transform: translateY(1px); }
-      .btn-primary { background: var(--primary-main); color: var(--primary-text); }
-      .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
-      .btn-outline { background: var(--bg-surface); border: 1px solid var(--border-color); color: var(--text-primary); box-shadow: var(--shadow-sm); }
-      .btn-danger { background: var(--danger-main); color: #fff; }
-      
-      /* FORMS */
-      .form-group {
-        display: flex; justify-content: space-between; align-items: center;
-        padding: 12px 0; border-bottom: 1px solid var(--border-color);
-      }
-      .form-group:last-child { border-bottom: none; }
-      .form-group label { font-size: 14px; font-weight: 500; }
-      .form-group input {
-        width: 60px; padding: 8px; text-align: center;
-        background: var(--bg-body); border: 1px solid var(--border-color);
-        border-radius: var(--radius-sm); font-size: 14px; font-weight: 600;
-        color: var(--text-primary); outline: none; transition: 0.2s;
-      }
-      .form-group input:focus { border-color: var(--border-focus); box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2); background: var(--bg-surface); }
-
-      /* CALENDAR GRID */
-      .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-      .cal-month { font-size: 16px; font-weight: 600; }
-      .cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 12px; font-weight: 500; color: var(--text-secondary); margin-bottom: 8px; }
-      .cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
-      .cal-day {
-        aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-        font-size: 13px; font-weight: 500; border-radius: var(--radius-sm); cursor: pointer;
-        border: 1px solid transparent; transition: 0.2s;
-      }
-      .cal-day.available { background: var(--bg-body); border-color: var(--border-color); }
-      .cal-day.available:active { border-color: var(--border-focus); }
-      .cal-day.today { border-color: var(--primary-main); font-weight: 700; color: var(--primary-main); }
-      .cal-day.booked { background: transparent; color: var(--text-muted); cursor: not-allowed; }
-      .cal-day.empty { visibility: hidden; }
-      .dot { width: 4px; height: 4px; background: var(--danger-main); border-radius: 50%; margin-top: 2px; }
-
-      /* FIXED BOTTOM NAVIGATION (Standard App Style) */
-      .bottom-nav {
-        position: fixed; bottom: 0; left: 0; width: 100%;
-        background: var(--bg-surface);
-        border-top: 1px solid var(--border-color);
-        display: flex; justify-content: space-around;
-        padding: 12px 0; padding-bottom: calc(12px + env(safe-area-inset-bottom));
-        z-index: 100;
-      }
-      .nav-item {
-        display: flex; flex-direction: column; align-items: center; gap: 4px;
-        color: var(--text-muted); cursor: pointer; width: 64px;
-      }
-      .nav-item svg { width: 22px; height: 22px; stroke-width: 2; }
-      .nav-item span { font-size: 10px; font-weight: 500; }
-      .nav-item.active { color: var(--primary-main); }
-      .nav-item.active svg { stroke-width: 2.5; }
-
-      /* MODALS & LOADERS */
-      .overlay {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.6); backdrop-filter: blur(2px);
-        display: none; align-items: center; justify-content: center; z-index: 9999;
-      }
-      .overlay.active { display: flex; }
-      .modal {
-        background: var(--bg-surface); padding: 24px; border-radius: var(--radius-md);
-        width: 90%; max-width: 320px; border: 1px solid var(--border-color);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-      }
-      .modal h3 { margin: 0 0 8px 0; font-size: 16px; font-weight: 700; }
-      .modal p { color: var(--text-secondary); font-size: 14px; margin: 0 0 24px 0; line-height: 1.5; }
-      .modal-actions { display: flex; gap: 12px; justify-content: flex-end; }
-      .modal-actions .btn { width: auto; padding: 8px 16px; }
-
-      .spinner {
-        width: 32px; height: 32px; border: 3px solid var(--border-color);
-        border-top-color: var(--primary-main); border-radius: 50%;
-        animation: spin 1s linear infinite; margin: 0 auto 16px auto;
-      }
-      @keyframes spin { 100% { transform: rotate(360deg); } }
-
-      /* Login Screen */
-      #loginScreen { text-align: center; display: none; flex-direction: column; justify-content: center; min-height: 100vh; background: var(--bg-surface); }
-      #loginScreen.active { display: flex; }
-      
-      @media print {
-        body, html, #app-container, .screen { background: #fff !important; height: auto !important; position: static !important; }
-        .top-bar, .bottom-nav, #globalLoader, #customModal, .print-hide { display: none !important; }
-        .screen:not(.active) { display: none !important; }
-        .screen.active { padding: 0 !important; display: block !important; }
-        .print-show { display: block !important; }
-        .card { border: none !important; box-shadow: none !important; margin: 0 !important; padding: 0 !important;}
-        table { border-collapse: collapse !important; width: 100% !important;}
-        th, td { border: 1px solid #e4e4e7 !important; padding: 8px !important;}
-      }
-    </style>
-  </head>
-  <body>
-
-    <div id="globalLoader" class="overlay">
-      <div style="text-align: center;">
-        <div class="spinner"></div>
-        <div style="color: white; font-weight: 500; font-size: 14px">Memuat Data...</div>
-      </div>
+  <div id="globalLoader" class="overlay">
+    <div style="text-align: center;">
+      <div class="spinner"></div>
+      <div style="color: white; font-weight: 500; font-size: 14px">Memuat Sistem...</div>
     </div>
+  </div>
 
-    <div id="customModal" class="overlay">
-      <div class="modal">
-        <h3 id="modalTitle">Judul</h3>
-        <p id="modalMessage">Pesan</p>
-        <div class="modal-actions" id="modalActionsContainer"></div>
-      </div>
+  <div id="customModal" class="overlay">
+    <div class="modal">
+      <h3 id="modalTitle">Judul</h3>
+      <p id="modalMessage">Pesan</p>
+      <div class="modal-actions" id="modalActionsContainer"></div>
     </div>
+  </div>
 
-    <div id="app-container">
-
-      <div id="loginScreen" class="screen active">
-        <div style="width: 48px; height: 48px; background: var(--primary-main); color: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px auto;">
-          <svg style="width: 24px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
-        </div>
-        <h1 style="font-size: 24px; font-weight: 700; margin: 0 0 8px 0; letter-spacing: -0.02em;">Log into Sikeka</h1>
-        <p style="color: var(--text-secondary); font-size: 14px; margin: 0 0 32px 0;">Otorisasi sistem inspeksi asrama.</p>
-        <div id="googleSignInBtn" style="display: flex; justify-content: center;"></div>
+  <div id="loginScreen" class="screen active">
+    <div class="login-box">
+      <div class="login-logo">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
       </div>
+      <h1>Log into Sikeka</h1>
+      <p>Otorisasi sistem inspeksi asrama.</p>
+      <div id="googleSignInBtn" style="display: flex; justify-content: center; margin-top: 24px;"></div>
+    </div>
+  </div>
 
+  <div id="app-wrapper" style="display: none;">
+    
+    <aside class="sidebar print-hide" id="desktopSidebar"></aside>
+
+    <main class="main-content">
+      
       <div id="unauthorizedScreen" class="screen">
-        <div class="card" style="text-align: center; margin-top: 40px; padding: 40px 20px;">
-          <h2 style="margin: 0 0 12px 0; font-size: 18px;">Akses Ditolak</h2>
-          <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 24px;">Akun <b style="color: var(--text-primary);"><span id="unauthEmail"></span></b> belum terdaftar di sistem. Hubungi administrator.</p>
-          <button class="btn btn-outline" onclick="logout()">Ganti Akun</button>
+        <div class="card center-content">
+          <h2 style="font-size: 18px; margin-bottom: 8px;">Akses Ditolak</h2>
+          <p class="text-secondary" style="margin-bottom: 24px;">Akun <b class="text-primary"><span id="unauthEmail"></span></b> belum terdaftar. Hubungi administrator.</p>
+          <button class="btn btn-outline" style="width: auto; margin: 0 auto;" onclick="logout()">Ganti Akun</button>
         </div>
       </div>
 
@@ -299,33 +64,42 @@
         <div class="top-bar">
           <h1 class="top-bar-title">Dashboard</h1>
           <div style="display: flex; gap: 8px;">
-            <button class="icon-btn" onclick="toggleTheme()" aria-label="Theme"><span class="themeIconContainer"></span></button>
-            <button class="icon-btn" onclick="confirmLogout()" aria-label="Logout"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg></button>
+            <button class="icon-btn mobile-only" onclick="toggleTheme()"><span class="themeIconContainer"></span></button>
+            <button class="icon-btn mobile-only" onclick="confirmLogout()"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg></button>
           </div>
         </div>
 
         <div class="greeting-section">
           <h2 class="greeting-title" id="dashUserSapaan">Ustadz ...</h2>
-          <p class="greeting-sub" id="dashStatusText">Memuat status...</p>
         </div>
 
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Top 3 Kamar</h3>
-            <span class="badge badge-success">Terbaik</span>
-          </div>
-          <div id="top3Container">
-             <div class="data-row"><span class="data-row-main" style="color:var(--text-muted)">Memuat data...</span></div>
-          </div>
-        </div>
+        <div class="grid-layout">
+          <div class="grid-col">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Top 3 Kamar</h3><span class="badge badge-success">Terbaik</span>
+              </div>
+              <div id="top3Container"></div>
+            </div>
 
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Perlu Perhatian</h3>
-            <span class="badge badge-danger">Terbawah</span>
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Perlu Perhatian</h3><span class="badge badge-danger">Terbawah</span>
+              </div>
+              <div id="bottom3Container"></div>
+            </div>
           </div>
-          <div id="bottom3Container">
-             <div class="data-row"><span class="data-row-main" style="color:var(--text-muted)">Memuat data...</span></div>
+
+          <div class="grid-col">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Jadwal Inspeksi</h3><span class="badge badge-neutral">4 Hari ke Depan</span>
+              </div>
+              <div id="jadwalMendatangContainer">
+                <div class="data-row"><span class="data-row-main text-muted">Memuat jadwal...</span></div>
+              </div>
+              <button class="btn btn-outline" style="margin-top: 16px;" onclick="navTo('bookingScreen')">Lihat Kalender Lengkap</button>
+            </div>
           </div>
         </div>
       </div>
@@ -336,35 +110,30 @@
           <button class="icon-btn" onclick="cetakKlasemen()"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg></button>
         </div>
 
-        <h2 class="print-show" id="printJudulKlasemen" style="display: none; text-align: center; margin-bottom: 8px; font-size: 16px;">Klasemen</h2>
-        <div class="print-show" id="printTimestamp" style="display: none; text-align: right; font-size: 12px; margin-bottom: 12px; color: #666;"></div>
+        <h2 class="print-show text-center" id="printJudulKlasemen" style="display: none; margin-bottom: 8px;">Klasemen</h2>
+        <div class="print-show text-right text-muted" id="printTimestamp" style="display: none; font-size: 12px; margin-bottom: 12px;"></div>
 
         <select id="bulanKlasemenDropdown" class="btn btn-outline print-hide" style="margin-bottom: 16px; text-align: left; justify-content: space-between;" onchange="loadKlasemenBulanIni()"></select>
         
-        <div class="card" style="padding: 0 20px;">
+        <div class="card p-0">
           <table>
-            <thead><tr><th style="width:30px">#</th><th>Kamar</th><th style="text-align: right">Avg</th></tr></thead>
+            <thead><tr><th style="width:40px; padding-left:16px;">#</th><th>Kamar</th><th style="text-align:right; padding-right:16px;">Avg</th></tr></thead>
             <tbody id="fullKlasemenBody"></tbody>
           </table>
         </div>
       </div>
 
       <div id="bookingScreen" class="screen">
-        <div class="top-bar">
-          <h1 class="top-bar-title">Jadwal</h1>
-        </div>
+        <div class="top-bar"><h1 class="top-bar-title">Jadwal</h1></div>
+        <p class="text-secondary" style="margin-bottom: 16px;">Pilih tanggal untuk reservasi jadwal inspeksi.</p>
         
-        <p style="color: var(--text-secondary); font-size: 14px; margin: 0 0 16px 0;">Pilih tanggal untuk reservasi jadwal inspeksi.</p>
-        
-        <div class="card">
+        <div class="card p-0" style="max-width: 400px;">
           <div class="cal-header">
             <button class="icon-btn" onclick="changeMonth(-1)"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg></button>
             <div class="cal-month" id="calMonthYear">Bulan</div>
             <button class="icon-btn" onclick="changeMonth(1)"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg></button>
           </div>
-          <div class="cal-weekdays">
-            <div>Min</div><div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div>Sab</div>
-          </div>
+          <div class="cal-weekdays"><div>Min</div><div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div>Sab</div></div>
           <div class="cal-days" id="calendarDays"></div>
         </div>
       </div>
@@ -372,39 +141,37 @@
       <div id="formScreen" class="screen">
         <div class="top-bar">
           <h1 class="top-bar-title">Inspeksi</h1>
-          <span style="font-size: 12px; font-weight: 600; color: var(--text-muted);" id="formProgressText">1 / X</span>
+          <span class="text-muted" style="font-size: 13px; font-weight: 600;" id="formProgressText">1 / X</span>
         </div>
         
-        <div class="card" style="padding: 0 20px;" id="formPagesContainer"></div>
+        <div class="card p-0" style="max-width: 500px;" id="formPagesContainer"></div>
         
-        <div style="display: flex; gap: 12px; margin-top: 20px;">
-          <button class="btn btn-outline" style="flex: 1" id="btnFormPrev" onclick="changeFormPage(-1)">Back</button>
-          <button class="btn btn-primary" style="flex: 1" id="btnFormNext" onclick="changeFormPage(1)">Next</button>
+        <div style="display: flex; gap: 12px; margin-top: 20px; max-width: 500px;">
+          <button class="btn btn-outline" style="flex: 1" id="btnFormPrev" onclick="changeFormPage(-1)">Kembali</button>
+          <button class="btn btn-primary" style="flex: 1" id="btnFormNext" onclick="changeFormPage(1)">Lanjut</button>
         </div>
       </div>
 
       <div id="detailKamarScreen" class="screen">
         <div class="top-bar print-hide">
           <div style="display: flex; align-items: center; gap: 12px;">
-            <button class="icon-btn" onclick="navTo('klasemenScreen', true)"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg></button>
+            <button class="icon-btn" onclick="navTo('klasemenScreen')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg></button>
             <h1 class="top-bar-title" id="detailKamarTitle">Kamar</h1>
           </div>
         </div>
-        <div class="card" style="padding: 0 20px;">
+        <div class="card p-0">
           <table>
-            <thead><tr><th>Tgl</th><th>Petugas</th><th style="text-align: right">Nilai</th></tr></thead>
+            <thead><tr><th style="padding-left:16px;">Tgl</th><th>Petugas</th><th style="text-align: right; padding-right:16px;">Nilai</th></tr></thead>
             <tbody id="detailKamarBody"></tbody>
           </table>
         </div>
       </div>
 
       <div id="exportScreen" class="screen">
-        <div class="top-bar">
-          <h1 class="top-bar-title">Impor Data</h1>
-        </div>
-        <div class="card">
+        <div class="top-bar"><h1 class="top-bar-title">Data Manajemen</h1></div>
+        <div class="card" style="max-width: 500px;">
           <h3 class="card-title" style="margin-bottom: 8px;">Upload Massal</h3>
-          <p style="font-size: 13px; color: var(--text-secondary); margin: 0 0 20px 0; line-height: 1.5;">Gunakan fitur ini khusus untuk sinkronisasi nilai Jam'iyyah Tholabah dari file Excel.</p>
+          <p class="text-secondary" style="font-size: 13px; margin-bottom: 20px; line-height: 1.5;">Gunakan fitur ini khusus untuk sinkronisasi nilai Jam'iyyah Tholabah dari file Excel.</p>
           
           <button class="btn btn-outline" style="margin-bottom: 12px;" onclick="downloadTemplateExcel()">Download Template</button>
           <input type="file" id="fileExcelInput" accept=".xlsx, .xls" style="display: none;" onchange="handleExcelUpload(event)" />
@@ -412,365 +179,13 @@
         </div>
       </div>
 
-    </div> <div class="bottom-nav" id="mainFooter" style="display: none;"></div>
+    </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <nav class="bottom-nav print-hide" id="mobileBottomNav"></nav>
 
-    <script>
-      // =========================================================================
-      // PENGATURAN API
-      // =========================================================================
-      const API_URL = "https://script.google.com/macros/s/AKfycbxSTxdco3HFv6qD07k262Yen64myCaRX28gezJCigRYCSm9aNbHC9Nv-ApQfLB5ykpAHA/exec";
-      const GOOGLE_CLIENT_ID = "582583731525-q3nc2v22sspdef6faqio3f9bou9f0ioa.apps.googleusercontent.com";
-      // =========================================================================
+  </div>
 
-      const iconSun = `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>`;
-      const iconMoon = `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>`;
-
-      const icNavHome = `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>`;
-      const icNavChart = `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>`;
-      const icNavEdit = `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>`;
-      const icNavCal = `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>`;
-      const icNavUp = `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>`;
-
-      let USER_EMAIL = "";
-      let APP_DATA = null;
-      let CURRENT_USER = { nama: "Pengguna", namaLengkap: "Pengguna", email: "", role: "Ustadz", track: "Ustadz" };
-      let BOOKED_DATES = {};
-      let FULL_KLASEMEN = [];
-      let TODAY_STATE = { status: "empty", penginput: "" };
-
-      let SELECTED_MONTH = new Date().getMonth();
-      let SELECTED_YEAR = new Date().getFullYear();
-
-      let calCurrentDate = new Date();
-      let calViewMonth = calCurrentDate.getMonth();
-      let calViewYear = calCurrentDate.getFullYear();
-
-      const SYUQQOH_GROUPS = [
-        { name: "Syuqqoh Arafah", rooms: ["Arafah 1", "Arafah 2", "Arafah 3", "Arafah 4", "Arafah 5", "Arafah 6"] },
-        { name: "Syuqqoh Muzdalifah", rooms: ["Muzdalifah 1", "Muzdalifah 2", "Muzdalifah 3", "Muzdalifah 5", "Muzdalifah 6"] },
-        { name: "Syuqqoh Mina", rooms: ["Mina 1", "Mina 2", "Mina 3", "Mina 4", "Mina 5", "Mina 6"] },
-        { name: "Syuqqoh Thaif", rooms: ["Thaif 1", "Thaif 2", "Thaif 3", "Thaif 4", "Thaif 5", "Thaif 6"] },
-        { name: "Xativa & Sevilla", rooms: ["Xativa 1", "Xativa 2", "Xativa 4", "Sevilla 1", "Sevilla 2", "Sevilla 4"] },
-        { name: "Granada & Qordoba", rooms: ["Granada 1", "Granada 2", "Granada 3", "Granada 4", "Qordoba 2", "Qordoba 3", "Qordoba 4"] },
-        { name: "Awali & Uhud", rooms: ["Awali 1", "Uhud 1", "Uhud 2", "Uhud 3", "Uhud 4"] },
-      ];
-      let currentFormPage = 0;
-      let isSubmitting = false;
-
-      window.onload = function () {
-        const isDark = document.documentElement.classList.contains("dark");
-        document.querySelectorAll(".themeIconContainer").forEach((el) => { el.innerHTML = isDark ? iconMoon : iconSun; });
-
-        const savedEmail = localStorage.getItem("sikeka_user_email");
-        if (savedEmail) {
-          USER_EMAIL = savedEmail;
-          document.getElementById("loginScreen").classList.remove("active");
-          document.getElementById("globalLoader").classList.add("active");
-          initAppData();
-        } else {
-          if (typeof google !== "undefined" && google.accounts) {
-            google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleCredentialResponse });
-            google.accounts.id.renderButton(document.getElementById("googleSignInBtn"), { theme: "outline", size: "large", shape: "rectangular", width: 250 });
-          } else {
-            customAlert("Gagal memuat modul Google. Cek koneksi internet.");
-          }
-        }
-      };
-
-      function parseJwt(token) {
-        var base64Url = token.split(".")[1];
-        var base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-        var jsonPayload = decodeURIComponent(atob(base64).split("").map(c => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2)).join(""));
-        return JSON.parse(jsonPayload);
-      }
-
-      function handleCredentialResponse(response) {
-        USER_EMAIL = parseJwt(response.credential).email;
-        localStorage.setItem("sikeka_user_email", USER_EMAIL);
-        document.getElementById("loginScreen").classList.remove("active");
-        document.getElementById("globalLoader").classList.add("active");
-        initAppData();
-      }
-
-      function logout() { localStorage.removeItem("sikeka_user_email"); window.location.reload(); }
-      function confirmLogout() { customConfirm("Keluar dari sistem Sikeka?", function () { logout(); }); }
-
-      function callGasAPI(actionName, payloadData = {}) {
-        return fetch(API_URL, {
-          method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({ action: actionName, email: USER_EMAIL, payload: payloadData }),
-        }).then(res => res.json()).then(json => { if (!json.success) throw new Error(json.message); return json.data; });
-      }
-
-      function initAppData() {
-        callGasAPI("getInitData").then(data => {
-            if (data.isRegistered === false) {
-              document.getElementById("globalLoader").classList.remove("active");
-              document.getElementById("unauthEmail").innerText = data.user.email;
-              navTo("unauthorizedScreen"); return;
-            }
-            document.getElementById("globalLoader").classList.remove("active");
-            APP_DATA = data; CURRENT_USER = data.user; BOOKED_DATES = data.bookedDates; FULL_KLASEMEN = data.klasemen.all; TODAY_STATE = data.todayState;
-
-            document.getElementById("dashUserSapaan").innerText = "Ustadz " + CURRENT_USER.nama.split(" ")[0];
-            if(CURRENT_USER.role === "JT") document.getElementById("dashUserSapaan").innerText = CURRENT_USER.nama;
-            
-            populateDropdown(data.availableMonths || []);
-            renderKlasemenDashboard(data.klasemen);
-            renderKlasemenLengkap(FULL_KLASEMEN);
-            renderFooterButtons("dashboardScreen");
-            navTo("dashboardScreen");
-            if (CURRENT_USER.role !== "JT") tampilkanPopupAwal();
-          }).catch(err => {
-            document.getElementById("globalLoader").classList.remove("active");
-            localStorage.removeItem("sikeka_user_email");
-            customAlert("Koneksi gagal. Silakan muat ulang.", "Error", () => window.location.reload());
-          });
-      }
-
-      function toggleTheme() {
-        document.documentElement.classList.toggle("dark");
-        const isDark = document.documentElement.classList.contains("dark");
-        localStorage.setItem("theme", isDark ? "dark" : "light");
-        document.querySelectorAll(".themeIconContainer").forEach((el) => { el.innerHTML = isDark ? iconMoon : iconSun; });
-      }
-
-      function navTo(screenId, isBack=false) {
-        document.querySelectorAll(".screen").forEach(el => el.classList.remove("active"));
-        document.getElementById(screenId).classList.add("active");
-        if(!isBack) window.scrollTo(0, 0);
-        if (screenId === "bookingScreen") renderCalendar();
-        if (screenId === "formScreen") initializeFormPages();
-        renderFooterButtons(screenId); 
-      }
-
-      function closeCustomModal() { document.getElementById("customModal").classList.remove("active"); }
-      function showDynamicModal(title, message, buttonsHTML) {
-        document.getElementById("modalTitle").innerText = title;
-        document.getElementById("modalMessage").innerHTML = message;
-        document.getElementById("modalActionsContainer").innerHTML = buttonsHTML;
-        document.getElementById("customModal").classList.add("active");
-      }
-      function customAlert(message, title = "Info", callback = null) {
-        window.tempCb = () => { closeCustomModal(); if (callback) callback(); };
-        showDynamicModal(title, message, `<button class="btn btn-primary" onclick="window.tempCb()">OK</button>`);
-      }
-      function customConfirm(message, onConfirm) {
-        window.tempCf = () => { closeCustomModal(); if (onConfirm) onConfirm(); };
-        showDynamicModal("Konfirmasi", message, `<button class="btn btn-outline" onclick="closeCustomModal()">Batal</button><button class="btn btn-primary" onclick="window.tempCf()">Lanjutkan</button>`);
-      }
-
-      // NAVIGASI BAWAH (STANDARD)
-      function renderFooterButtons(activeScreen) {
-        let footer = document.getElementById("mainFooter");
-        if(activeScreen === "unauthorizedScreen" || activeScreen === "loginScreen") {
-           footer.style.display = "none"; return;
-        }
-        footer.style.display = "flex";
-        
-        let html = `<div class="nav-item ${activeScreen==='dashboardScreen'?'active':''}" onclick="navTo('dashboardScreen')">${icNavHome}<span>Home</span></div>`;
-        html += `<div class="nav-item ${activeScreen==='klasemenScreen'||activeScreen==='detailKamarScreen'?'active':''}" onclick="navTo('klasemenScreen')">${icNavChart}<span>Klasemen</span></div>`;
-        
-        if (CURRENT_USER.role !== "JT") {
-            html += `<div class="nav-item ${activeScreen==='bookingScreen'?'active':''}" onclick="navTo('bookingScreen')">${icNavCal}<span>Jadwal</span></div>`;
-            html += `<div class="nav-item ${activeScreen==='formScreen'?'active':''}" onclick="navTo('formScreen')">${icNavEdit}<span>Inspeksi</span></div>`;
-        }
-        if (CURRENT_USER.role === "JT" || CURRENT_USER.role === "Admin") {
-            html += `<div class="nav-item ${activeScreen==='exportScreen'?'active':''}" onclick="navTo('exportScreen')">${icNavUp}<span>Data</span></div>`;
-        }
-        footer.innerHTML = html;
-      }
-
-      function tampilkanPopupAwal() {
-        let statText = document.getElementById("dashStatusText");
-        if (TODAY_STATE.status === "filled") { statText.innerText = "Selesai diinspeksi"; }
-        else if (TODAY_STATE.status === "booked_by_me") { statText.innerText = "Jadwal Anda Hari Ini"; }
-        else if (TODAY_STATE.status === "booked_by_other") { statText.innerText = "Jadwal " + TODAY_STATE.penginput; }
-        else {
-          statText.innerText = "Belum dibooking";
-          customAlert("Anda belum mem-booking jadwal untuk hari ini. Silakan cek Kalender.", "Info", () => navTo("bookingScreen"));
-        }
-      }
-
-      // DASHBOARD DATA
-      function renderKlasemenDashboard(data) {
-        let topHtml = "";
-        data.top3.forEach((item, index) => { 
-          topHtml += `<div class="data-row"><div class="data-row-main"><span class="data-rank">${index+1}</span> <span>${item.kamar}</span></div><span class="badge badge-neutral">${item.nilai}</span></div>`; 
-        });
-        document.getElementById("top3Container").innerHTML = topHtml || `<div class="data-row"><span class="data-row-main" style="color:var(--text-muted)">Kosong</span></div>`;
-
-        let bottomHtml = "";
-        data.bottom3.forEach((item, index) => {
-          let rank = data.all.length - data.bottom3.length + index + 1;
-          bottomHtml += `<div class="data-row"><div class="data-row-main"><span class="data-rank">${rank}</span> <span>${item.kamar}</span></div><span class="badge badge-neutral">${item.nilai}</span></div>`;
-        });
-        document.getElementById("bottom3Container").innerHTML = bottomHtml || `<div class="data-row"><span class="data-row-main" style="color:var(--text-muted)">Kosong</span></div>`;
-      }
-
-      // KLASEMEN LENGKAP
-      function populateDropdown(mArr) {
-        let dd = document.getElementById("bulanKlasemenDropdown"); dd.innerHTML = "";
-        if (mArr.length === 0) dd.innerHTML = `<option value="${SELECTED_YEAR}-${SELECTED_MONTH}">Bulan Ini</option>`;
-        else mArr.forEach(m => dd.innerHTML += `<option value="${m.value}">${m.label}</option>`);
-        dd.value = SELECTED_YEAR + "-" + SELECTED_MONTH;
-      }
-
-      function loadKlasemenBulanIni() {
-        let pts = document.getElementById("bulanKlasemenDropdown").value.split("-");
-        SELECTED_YEAR = parseInt(pts[0]); SELECTED_MONTH = parseInt(pts[1]);
-        document.getElementById("globalLoader").classList.add("active");
-        callGasAPI("getKlasemenBulan", { targetMonth: SELECTED_MONTH, targetYear: SELECTED_YEAR }).then(res => {
-            document.getElementById("globalLoader").classList.remove("active");
-            FULL_KLASEMEN = res.klasemen.all; renderKlasemenLengkap(FULL_KLASEMEN);
-        }).catch(err => { document.getElementById("globalLoader").classList.remove("active"); customAlert(err.message); });
-      }
-
-      function renderKlasemenLengkap(allData) {
-        let html = "";
-        allData.forEach((item, idx) => {
-          html += `<tr onclick="bukaDetailKamar('${item.kamar}')"><td>${idx+1}</td><td>${item.kamar}</td><td style="text-align:right;">${item.nilai}</td></tr>`;
-        });
-        document.getElementById("fullKlasemenBody").innerHTML = html || `<tr><td colspan="3" style="text-align:center; color:var(--text-muted)">Belum ada data</td></tr>`;
-      }
-
-      function bukaDetailKamar(roomName) {
-        document.getElementById("globalLoader").classList.add("active"); document.getElementById("detailKamarTitle").innerText = roomName;
-        callGasAPI("getRoomHistory", { roomName: roomName, filterMonth: SELECTED_MONTH, filterYear: SELECTED_YEAR }).then(hist => {
-            document.getElementById("globalLoader").classList.remove("active"); let html = "";
-            hist.forEach(item => { html += `<tr><td><span style="font-size:12px;color:var(--text-muted);display:block">${item.tanggal}</span>${item.penginput.split(' ')[0]}</td><td style="text-align:right">${item.nilai}</td></tr>`; });
-            document.getElementById("detailKamarBody").innerHTML = html || `<tr><td colspan="2" style="text-align:center; color:var(--text-muted)">Kosong</td></tr>`;
-            navTo("detailKamarScreen");
-        });
-      }
-
-      // CALENDAR
-      function changeMonth(dir) {
-        calViewMonth += dir;
-        if (calViewMonth < 0) { calViewMonth = 11; calViewYear--; } else if (calViewMonth > 11) { calViewMonth = 0; calViewYear++; }
-        renderCalendar();
-      }
-
-      function renderCalendar() {
-        const bln = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-        document.getElementById("calMonthYear").innerText = `${bln[calViewMonth]} ${calViewYear}`;
-        
-        let fd = new Date(calViewYear, calViewMonth, 1).getDay();
-        let days = new Date(calViewYear, calViewMonth + 1, 0).getDate();
-        let todayStr = `${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}-${String(new Date().getDate()).padStart(2,'0')}`;
-        
-        let html = "";
-        for (let i = 0; i < fd; i++) html += `<div class="cal-day empty"></div>`;
-        for (let d = 1; d <= days; d++) {
-          let dt = new Date(calViewYear, calViewMonth, d);
-          let key = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
-          dt.setHours(23, 59, 59); let isPast = dt < new Date();
-          let cls = (key === todayStr) ? "cal-day available today" : "cal-day available";
-
-          if (BOOKED_DATES[key]) {
-             html += `<div class="cal-day booked">${d}<div class="dot"></div></div>`;
-          } else if (isPast && key !== todayStr) {
-             html += `<div class="cal-day booked">${d}</div>`;
-          } else {
-             html += `<div class="${cls}" onclick="prosesBooking('${key}')">${d}</div>`;
-          }
-        }
-        document.getElementById("calendarDays").innerHTML = html;
-      }
-
-      function prosesBooking(dateKey) {
-        customConfirm(`Reservasi jadwal inspeksi tanggal ${dateKey}?`, () => {
-          document.getElementById("globalLoader").classList.add("active");
-          callGasAPI("submitBooking", { dateKey: dateKey, namaUser: CURRENT_USER.namaLengkap }).then(() => {
-            window.location.reload(); 
-          }).catch(err => { document.getElementById("globalLoader").classList.remove("active"); customAlert(err.message); });
-        });
-      }
-
-      // FORM PENILAIAN
-      function initializeFormPages() {
-        if(TODAY_STATE.status === "filled" || TODAY_STATE.status === "booked_by_other") {
-            document.getElementById("formPagesContainer").innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted)">Jadwal tidak tersedia.</div>`;
-            document.getElementById("btnFormNext").disabled = true; return;
-        }
-        document.getElementById("btnFormNext").disabled = false;
-        currentFormPage = 0; let html = "";
-        SYUQQOH_GROUPS.forEach((g, i) => {
-          html += `<div class="screen ${i===0?'active':''}" id="formPage_${i}" style="padding:0;"><h3 style="margin:16px 0; font-size:14px; font-weight:600; color:var(--text-secondary);">${g.name}</h3>`;
-          g.rooms.forEach(r => { html += `<div class="form-group"><label>${r}</label><input type="number" id="inp_${r.replace(/\s+/g,"_")}" placeholder="-"></div>`; });
-          html += `</div>`;
-        });
-        document.getElementById("formPagesContainer").innerHTML = html; updateFormNavigation();
-      }
-
-      function changeFormPage(dir) {
-        document.getElementById(`formPage_${currentFormPage}`).classList.remove("active");
-        currentFormPage += dir;
-        if (currentFormPage >= SYUQQOH_GROUPS.length) {
-          currentFormPage--; document.getElementById(`formPage_${currentFormPage}`).classList.add("active");
-          customConfirm("Simpan data inspeksi sekarang?", executeSavePenilaian); return;
-        }
-        document.getElementById(`formPage_${currentFormPage}`).classList.add("active"); updateFormNavigation(); window.scrollTo(0,0);
-      }
-
-      function updateFormNavigation() {
-        document.getElementById("formProgressText").innerText = `Halaman ${currentFormPage + 1} dari ${SYUQQOH_GROUPS.length}`;
-        document.getElementById("btnFormPrev").style.display = currentFormPage === 0 ? "none" : "block";
-        document.getElementById("btnFormNext").innerText = currentFormPage === SYUQQOH_GROUPS.length - 1 ? "Submit" : "Next";
-      }
-
-      function executeSavePenilaian() {
-        let payload = {}; let errIdx = -1;
-        SYUQQOH_GROUPS.forEach((g, i) => {
-          g.rooms.forEach(r => {
-            let v = document.getElementById(`inp_${r.replace(/\s+/g,"_")}`).value;
-            if(v==="" && errIdx===-1) errIdx = i;
-            payload[r] = v;
-          });
-        });
-        if(errIdx !== -1) {
-           customAlert("Lengkapi seluruh form input.");
-           document.getElementById(`formPage_${currentFormPage}`).classList.remove("active");
-           currentFormPage = errIdx; document.getElementById(`formPage_${currentFormPage}`).classList.add("active");
-           updateFormNavigation(); return;
-        }
-        document.getElementById("globalLoader").classList.add("active");
-        callGasAPI("savePenilaian", { penilaianMap: payload }).then(() => window.location.reload())
-        .catch(err => { document.getElementById("globalLoader").classList.remove("active"); customAlert(err.message); });
-      }
-
-      // EXPORT EXCEL
-      function downloadTemplateExcel() {
-        document.getElementById("globalLoader").classList.add("active");
-        callGasAPI("getRoomHeaders").then(rooms => {
-            document.getElementById("globalLoader").classList.remove("active");
-            let wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([["Tanggal"].concat(rooms)]), "Template");
-            XLSX.writeFile(wb, "Template_Sikeka.xlsx");
-        });
-      }
-
-      function handleExcelUpload(e) {
-        let file = e.target.files[0]; if (!file) return;
-        customConfirm(`Upload data dari ${file.name}?`, () => {
-            document.getElementById("globalLoader").classList.add("active");
-            let reader = new FileReader();
-            reader.onload = function(evt) {
-              let data = XLSX.utils.sheet_to_json(XLSX.read(new Uint8Array(evt.target.result), {type: "array"}).Sheets[XLSX.read(new Uint8Array(evt.target.result), {type: "array"}).SheetNames[0]], {header:1});
-              callGasAPI("importDataExcel", { excelData: data }).then(res => {
-                  customAlert(`Berhasil upload ${res.count} baris data.`, "Sukses", () => window.location.reload());
-              }).catch(err => { document.getElementById("globalLoader").classList.remove("active"); customAlert(err.message); });
-            };
-            reader.readAsArrayBuffer(file);
-        });
-      }
-      
-      function cetakKlasemen() {
-        const now = new Date();
-        document.getElementById("printTimestamp").innerText = `Dicetak: ${now.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })} WIB`;
-        window.print();
-      }
-    </script>
-  </body>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="script.js"></script>
+</body>
 </html>
