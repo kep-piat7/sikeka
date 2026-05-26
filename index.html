@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
 
@@ -117,6 +117,27 @@
             id="googleSignInBtn"
             style="display: flex; justify-content: center"
           ></div>
+          <div style="margin-top: 24px; border-top: 1px dashed var(--border-subtle); padding-top: 20px; width: 100%;">
+            <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 12px; font-weight: 500;">
+              Bypass Otorisasi (Uji Coba / Developer Mode):
+            </p>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <input
+                type="email"
+                id="bypassEmailInput"
+                placeholder="email.anda@domain.com"
+                value="admin@sikeka.com"
+                style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-subtle); background-color: var(--bg-surface); color: var(--text-primary); font-size: 14px; text-align: center;"
+              />
+              <button
+                class="btn btn-primary"
+                onclick="loginWithBypass()"
+                style="width: 100%; justify-content: center; padding: 10px;"
+              >
+                Masuk via Bypass
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -325,11 +346,21 @@
                 />
               </svg>
             </button>
-            <h2 class="room-title">Penilaian Kebersihan</h2>
+            <h2 class="room-title">Penilaian</h2>
           </div>
-          <button class="theme-toggle" onclick="toggleTheme()">
-            <span class="themeIconContainer"></span>
-          </button>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <button
+              id="btnToggleLayout"
+              class="btn btn-outline btn-small"
+              style="padding: 6px 10px; font-size: 11px; font-weight: 600; border-radius: 8px;"
+              onclick="toggleFormLayout()"
+            >
+              Mode Scroll
+            </button>
+            <button class="theme-toggle" onclick="toggleTheme()">
+              <span class="themeIconContainer"></span>
+            </button>
+          </div>
         </div>
         <div class="form-progress" id="formProgressText">Halaman 1 dari X</div>
         <div
@@ -463,14 +494,7 @@
           <div style="display: flex; align-items: center; gap: 8px">
             <select
               id="bulanKlasemenDropdown"
-              class="btn btn-outline btn-small print-hide"
-              style="
-                padding: 6px 30px 6px 12px;
-                appearance: auto;
-                cursor: pointer;
-                background-color: var(--bg-surface);
-                color: var(--text-primary);
-              "
+              class="print-hide"
               onchange="loadKlasemenBulanIni()"
             >
               <!-- Opsi diisi otomatis via JS -->
@@ -727,6 +751,14 @@
           id="footerActionContainer"
           style="display: flex; gap: 12px; align-items: center"
         ></div>
+      </div>
+    </div>
+    
+    <!-- Toast Notification untuk Undo Simpan -->
+    <div id="undoToast" class="undo-toast">
+      <div class="undo-toast-content">
+        <span>Menyimpan data penilaian dalam <b id="undoCountdown">5</b> detik...</span>
+        <button class="btn btn-outline btn-small btn-undo" onclick="triggerUndoSave()" style="padding: 4px 10px; font-size: 11px; font-weight: bold; border-color: rgba(255,255,255,0.4); color: #fff;">BATAL</button>
       </div>
     </div>
 

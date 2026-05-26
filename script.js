@@ -25,6 +25,10 @@ let BOOKED_DATES = {};
 let FULL_KLASEMEN = [];
 let TODAY_STATE = { status: "empty", penginput: "" };
 
+let formLayoutMode = "wizard";
+let undoCountdownInterval = null;
+let pendingPayload = null;
+
 let SELECTED_MONTH = new Date().getMonth();
 let SELECTED_YEAR = new Date().getFullYear();
 
@@ -127,8 +131,8 @@ window.onload = function () {
         { theme: "outline", size: "large", shape: "pill", width: 250 },
       );
     } else {
-      customAlert(
-        "Sistem gagal memuat modul Login Google. Pastikan Anda terkoneksi ke internet.",
+      console.warn(
+        "Google Client SDK tidak termuat. Anda dapat masuk menggunakan Bypass Otorisasi.",
       );
     }
   }
@@ -151,6 +155,20 @@ function parseJwt(token) {
 function handleCredentialResponse(response) {
   const data = parseJwt(response.credential);
   USER_EMAIL = data.email;
+  localStorage.setItem("sikeka_user_email", USER_EMAIL);
+  document.getElementById("loginScreen").classList.remove("active");
+  document.getElementById("globalLoader").style.display = "flex";
+  initAppData();
+}
+
+function loginWithBypass() {
+  const emailInput = document.getElementById("bypassEmailInput");
+  const email = emailInput ? emailInput.value.trim() : "admin@sikeka.com";
+  if (!email) {
+    customAlert("Silakan masukkan email untuk bypass.");
+    return;
+  }
+  USER_EMAIL = email;
   localStorage.setItem("sikeka_user_email", USER_EMAIL);
   document.getElementById("loginScreen").classList.remove("active");
   document.getElementById("globalLoader").style.display = "flex";
@@ -237,7 +255,7 @@ function initAppData() {
       localStorage.removeItem("sikeka_user_email");
       customAlert(
         "Gagal terhubung ke server database. Silakan muat ulang halaman.<br><br>Pesan Sistem: " +
-          error.message,
+        error.message,
         "Akses Terblokir",
         function () {
           window.location.reload();
@@ -532,23 +550,45 @@ function tampilkanPopupAwal() {
   showDynamicModal(title, msg, buttons, true);
 }
 
+function toggleFormLayout() {
+  formLayoutMode = formLayoutMode === "wizard" ? "scroll" : "wizard";
+  const btn = document.getElementById("btnToggleLayout");
+  if (btn) {
+    btn.innerText = formLayoutMode === "wizard" ? "Mode Scroll" : "Mode Wizard";
+  }
+  initializeFormPages();
+}
+
 function initializeFormPages() {
   currentFormPage = 0;
   let container = document.getElementById("formPagesContainer");
   let html = "";
-  SYUQQOH_GROUPS.forEach((group, index) => {
-    let displayState = index === 0 ? "active" : "";
-    html += `<div class="form-page ${displayState}" id="formPage_${index}"><div class="form-header-group">${group.name}</div>`;
-    group.rooms.forEach((room) => {
-      html += `<div class="form-row"><label>${room}</label><input type="number" id="inp_${room.replace(/\s+/g, "_")}" min="0" max="100" placeholder="-"></div>`;
+
+  if (formLayoutMode === "scroll") {
+    SYUQQOH_GROUPS.forEach((group, index) => {
+      html += `<div class="form-page active" id="formPage_${index}" style="margin-bottom: 28px; border-bottom: 2px solid var(--border-subtle); padding-bottom: 24px;">
+        <div class="form-header-group" style="margin-bottom: 16px;">${group.name}</div>`;
+      group.rooms.forEach((room) => {
+        html += `<div class="form-row"><label>${room}</label><input type="number" id="inp_${room.replace(/\s+/g, "_")}" min="0" max="100" placeholder="-"></div>`;
+      });
+      html += `</div>`;
     });
-    html += `</div>`;
-  });
+  } else {
+    SYUQQOH_GROUPS.forEach((group, index) => {
+      let displayState = index === 0 ? "active" : "";
+      html += `<div class="form-page ${displayState}" id="formPage_${index}"><div class="form-header-group">${group.name}</div>`;
+      group.rooms.forEach((room) => {
+        html += `<div class="form-row"><label>${room}</label><input type="number" id="inp_${room.replace(/\s+/g, "_")}" min="0" max="100" placeholder="-"></div>`;
+      });
+      html += `</div>`;
+    });
+  }
   container.innerHTML = html;
   updateFormNavigation();
 }
 
 function changeFormPage(direction) {
+  if (formLayoutMode === "scroll") return;
   document
     .getElementById(`formPage_${currentFormPage}`)
     .classList.remove("active");
@@ -576,18 +616,39 @@ function changeFormPage(direction) {
 }
 
 function updateFormNavigation() {
-  document.getElementById("formProgressText").innerText =
-    `Halaman ${currentFormPage + 1} dari ${SYUQQOH_GROUPS.length}`;
   let btnPrev = document.getElementById("btnFormPrev");
   let btnNext = document.getElementById("btnFormNext");
-  if (currentFormPage === 0) btnPrev.style.display = "none";
-  else btnPrev.style.display = "block";
-  if (currentFormPage === SYUQQOH_GROUPS.length - 1) {
+  let progressText = document.getElementById("formProgressText");
+
+  if (formLayoutMode === "scroll") {
+    progressText.innerText = "Mode Tinjau Semua Kamar";
+    btnPrev.style.display = "none";
+    btnNext.style.display = "block";
     btnNext.className = "btn btn-success";
-    btnNext.innerText = "Simpan";
+    btnNext.innerText = "Simpan Penilaian";
+    btnNext.onclick = function () {
+      if (isSubmitting) return;
+      customConfirm(
+        "Apakah Anda yakin data penilaian sudah benar dan ingin menyimpannya? Anda tidak bisa mengedit kembali setelah ini.",
+        function () {
+          executeSavePenilaian();
+        },
+        "Simpan Penilaian",
+      );
+    };
   } else {
-    btnNext.className = "btn btn-primary";
-    btnNext.innerText = "Selanjutnya";
+    btnNext.onclick = function () { changeFormPage(1); };
+    progressText.innerText = `Halaman ${currentFormPage + 1} dari ${SYUQQOH_GROUPS.length}`;
+    if (currentFormPage === 0) btnPrev.style.display = "none";
+    else btnPrev.style.display = "block";
+
+    if (currentFormPage === SYUQQOH_GROUPS.length - 1) {
+      btnNext.className = "btn btn-success";
+      btnNext.innerText = "Simpan";
+    } else {
+      btnNext.className = "btn btn-primary";
+      btnNext.innerText = "Selanjutnya";
+    }
   }
 }
 
@@ -614,25 +675,64 @@ function executeSavePenilaian() {
       "Ada kamar yang belum dinilai. Silakan lengkapi seluruh penilaian kamar terlebih dahulu.",
       "Data Belum Lengkap",
       function () {
-        document
-          .getElementById(`formPage_${currentFormPage}`)
-          .classList.remove("active");
-        currentFormPage = errorPageIndex;
-        document
-          .getElementById(`formPage_${currentFormPage}`)
-          .classList.add("active");
+        if (formLayoutMode === "wizard") {
+          document
+            .getElementById(`formPage_${currentFormPage}`)
+            .classList.remove("active");
+          currentFormPage = errorPageIndex;
+          document
+            .getElementById(`formPage_${currentFormPage}`)
+            .classList.add("active");
+          updateFormNavigation();
+        }
         window.scrollTo(0, 0);
-        updateFormNavigation();
       },
     );
     return;
   }
+
+  pendingPayload = payload;
+  showUndoToast(5);
+}
+
+function showUndoToast(seconds) {
+  const toast = document.getElementById("undoToast");
+  const countdownEl = document.getElementById("undoCountdown");
+  if (!toast || !countdownEl) return;
+
+  toast.classList.add("show");
+  countdownEl.innerText = seconds;
+
+  let timeLeft = seconds;
+  clearInterval(undoCountdownInterval);
+  undoCountdownInterval = setInterval(() => {
+    timeLeft--;
+    countdownEl.innerText = timeLeft;
+    if (timeLeft <= 0) {
+      clearInterval(undoCountdownInterval);
+      toast.classList.remove("show");
+      proceedWithSave();
+    }
+  }, 1000);
+}
+
+function triggerUndoSave() {
+  clearInterval(undoCountdownInterval);
+  const toast = document.getElementById("undoToast");
+  if (toast) toast.classList.remove("show");
+  pendingPayload = null;
+  customAlert("Penyimpanan dibatalkan. Anda dapat mengoreksi nilai kembali.", "Dibatalkan");
+}
+
+function proceedWithSave() {
+  if (!pendingPayload) return;
   isSubmitting = true;
   document.getElementById("globalLoader").style.display = "flex";
 
-  callGasAPI("savePenilaian", { penilaianMap: payload })
+  callGasAPI("savePenilaian", { penilaianMap: pendingPayload })
     .then(function (res) {
       isSubmitting = false;
+      pendingPayload = null;
       customAlert(
         "Data penilaian hari ini berhasil disimpan!",
         "Alhamdulillah",
@@ -643,6 +743,7 @@ function executeSavePenilaian() {
     })
     .catch(function (error) {
       isSubmitting = false;
+      pendingPayload = null;
       document.getElementById("globalLoader").style.display = "none";
       customAlert("Terjadi kesalahan jaringan: " + error.message);
     });
@@ -653,7 +754,8 @@ function renderKlasemenDashboard(data) {
   if (data.top3.length === 0)
     topHtml = `<div class="list-row"><span style="color:var(--text-muted); font-weight:400;">Belum ada data...</span></div>`;
   data.top3.forEach((item, index) => {
-    topHtml += `<div class="list-row"><span><span style="color:var(--text-muted); margin-right:8px;">${index + 1}</span> ${item.kamar}</span><span class="badge-score bg-top">${item.nilai}</span></div>`;
+    let medal = index === 0 ? "🥇" : index === 1 ? "🥈" : "🥉";
+    topHtml += `<div class="list-row"><span><span style="margin-right:8px; font-size:1.1rem; line-height:1;">${medal}</span> <b>${item.kamar}</b></span><span class="badge-score bg-top">${item.nilai}</span></div>`;
   });
   document.getElementById("top3Container").innerHTML = topHtml;
 
@@ -662,7 +764,7 @@ function renderKlasemenDashboard(data) {
     bottomHtml = `<div class="list-row"><span style="color:var(--text-muted); font-weight:400;">Belum ada data...</span></div>`;
   data.bottom3.forEach((item, index) => {
     let rankAkurat = data.all.length - data.bottom3.length + index + 1;
-    bottomHtml += `<div class="list-row"><span><span style="color:var(--text-muted); margin-right:8px;">${rankAkurat}</span> ${item.kamar}</span><span class="badge-score bg-bottom">${item.nilai}</span></div>`;
+    bottomHtml += `<div class="list-row"><span><span style="color:var(--text-muted); margin-right:8px; font-weight:700;">#${rankAkurat}</span> ${item.kamar}</span><span class="badge-score bg-bottom">${item.nilai}</span></div>`;
   });
   document.getElementById("bottom3Container").innerHTML = bottomHtml;
 }
@@ -674,13 +776,18 @@ function renderKlasemenLengkap(allData) {
   } else {
     allData.forEach((item, index) => {
       let pos = index + 1;
+      let rankDisp = `<span style="font-weight:700; color:var(--text-muted);">#${pos}</span>`;
+      if (pos === 1) rankDisp = "🥇";
+      else if (pos === 2) rankDisp = "🥈";
+      else if (pos === 3) rankDisp = "🥉";
+
       let badgeClass = "badge-score";
       if (pos <= 3) badgeClass += " bg-top";
       else if (pos >= allData.length - 2 && allData.length > 5)
         badgeClass += " bg-bottom";
       else badgeClass += " bg-baltic";
       let scoreHtml = `<span class="${badgeClass}" style="${badgeClass.includes("bg-baltic") ? "background:var(--brand-main);" : ""}">${item.nilai}</span>`;
-      html += `<tr onclick="bukaDetailKamar('${item.kamar}')"><td class="rank-col">${pos}</td><td>${item.kamar}</td><td style="text-align: right;">${scoreHtml}</td></tr>`;
+      html += `<tr onclick="bukaDetailKamar('${item.kamar}')"><td class="rank-col" style="font-size:1.1rem; text-align:center;">${rankDisp}</td><td><b>${item.kamar}</b></td><td style="text-align: right;">${scoreHtml}</td></tr>`;
     });
   }
   document.getElementById("fullKlasemenBody").innerHTML = html;
@@ -775,17 +882,53 @@ function renderCalendar() {
     const isToday = dateKey === todayKey ? "today" : "";
     loopDate.setHours(23, 59, 59, 999);
     const isPast = loopDate < new Date();
+    let paramDateStr = `${NAMA_HARI[loopDate.getDay()]}, ${day} ${NAMA_BULAN[calViewMonth]} ${calViewYear}`;
 
-    if (BOOKED_DATES[dateKey]) {
-      html += `<div class="calendar-cell booked ${isToday}"><div class="booked-dot"></div>${day}<span class="booked-name">${BOOKED_DATES[dateKey].substring(0, 6)}..</span></div>`;
+    if (BOOKED_DATES[dateKey] && BOOKED_DATES[dateKey].trim() !== "" && BOOKED_DATES[dateKey] !== "clear" && BOOKED_DATES[dateKey] !== "cancel") {
+      const bookedName = BOOKED_DATES[dateKey];
+      const isBookedByMe = bookedName === CURRENT_USER.namaLengkap;
+      if (isBookedByMe) {
+        html += `<div class="calendar-cell booked booked-by-me ${isToday}" onclick="prosesCancelBooking('${dateKey}', '${paramDateStr}')" title="Klik untuk membatalkan booking Anda"><div class="booked-dot"></div>${day}<span class="booked-name">ANDA</span></div>`;
+      } else {
+        html += `<div class="calendar-cell booked ${isToday}"><div class="booked-dot"></div>${day}<span class="booked-name">${bookedName.substring(0, 6)}..</span></div>`;
+      }
     } else if (isPast) {
       html += `<div class="calendar-cell empty" style="color:var(--text-muted); opacity:0.5;">${day}</div>`;
     } else {
-      let paramDateStr = `${NAMA_HARI[loopDate.getDay()]}, ${day} ${NAMA_BULAN[calViewMonth]} ${calViewYear}`;
       html += `<div class="calendar-cell available ${isToday}" onclick="prosesBooking('${dateKey}', '${paramDateStr}')">${day}</div>`;
     }
   }
   document.getElementById("calendarDays").innerHTML = html;
+}
+
+function prosesCancelBooking(dateKey, displayStr) {
+  customConfirm(
+    `Apakah Anda ingin MEMBATALKAN booking jadwal penilaian kebersihan pada hari:\n\n<b>${displayStr}</b>?`,
+    function () {
+      document.getElementById("globalLoader").style.display = "flex";
+
+      callGasAPI("submitBooking", {
+        dateKey: dateKey,
+        namaUser: "clear", // Use truthy "clear" token to override the cell value in Google Sheets
+      })
+        .then(function (res) {
+          document.getElementById("globalLoader").style.display = "none";
+          delete BOOKED_DATES[dateKey];
+          customAlert(
+            `Booking berhasil dibatalkan untuk tanggal ${displayStr}!`,
+            "Sukses",
+            function () {
+              reloadSystemData();
+            },
+          );
+        })
+        .catch(function (error) {
+          document.getElementById("globalLoader").style.display = "none";
+          customAlert("Gagal membatalkan booking: " + error.message);
+        });
+    },
+    "Konfirmasi Pembatalan Booking",
+  );
 }
 
 function prosesBooking(dateKey, displayStr) {
@@ -852,8 +995,8 @@ function handleExcelUpload(event) {
 
   customConfirm(
     "Data dari file <b>" +
-      file.name +
-      "</b> akan ditambahkan ke sistem sebagai data baru. Lanjutkan?",
+    file.name +
+    "</b> akan ditambahkan ke sistem sebagai data baru. Lanjutkan?",
     function () {
       document.getElementById("globalLoader").style.display = "flex";
       var reader = new FileReader();
