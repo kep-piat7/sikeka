@@ -1,191 +1,739 @@
 <!doctype html>
 <html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-  <title>Sikeka App</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+    <title>Sistem Penilaian Kebersihan</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <link rel="stylesheet" href="style.css" />
+    <!-- Google Identity Services (Tombol Login Google) -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 
-  <script>
-    if (localStorage.getItem("theme") === "dark" || (!localStorage.getItem("theme") && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
-      document.documentElement.classList.add("dark");
-    }
-  </script>
-</head>
-<body>
+    <script>
+      if (
+        localStorage.getItem("theme") === "dark" ||
+        (!localStorage.getItem("theme") &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches)
+      ) {
+        document.documentElement.classList.add("dark");
+      }
+    </script>
 
-  <div id="globalLoader" class="overlay">
-    <div style="text-align: center;">
+    <!-- Style External -->
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="globalLoader">
       <div class="spinner"></div>
-      <div style="color: white; font-weight: 500; font-size: 14px">Memuat Sistem...</div>
-    </div>
-  </div>
-
-  <div id="customModal" class="overlay">
-    <div class="modal">
-      <h3 id="modalTitle">Judul</h3>
-      <p id="modalMessage">Pesan</p>
-      <div class="modal-actions" id="modalActionsContainer"></div>
-    </div>
-  </div>
-
-  <div id="loginScreen" class="screen active">
-    <div class="login-box">
-      <div class="login-logo">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+      <div
+        style="color: var(--text-secondary); font-weight: 600; font-size: 15px"
+      >
+        Memuat Aplikasi...
       </div>
-      <h1>Log into Sikeka</h1>
-      <p>Otorisasi Khusus Petugas Inspeksi Asrama</p>
-      <div id="googleSignInBtn" style="display: flex; justify-content: center; margin-top: 24px;"></div>
     </div>
-  </div>
 
-  <div id="app-wrapper" style="display: none;">
-    
-    <aside class="sidebar print-hide" id="desktopSidebar"></aside>
+    <div id="customModal" class="modal-overlay">
+      <div class="modal-box">
+        <button
+          id="modalCloseBtn"
+          class="modal-close-btn"
+          onclick="closeCustomModal()"
+        >
+          <svg
+            width="24"
+            height="24"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+        <h3 id="modalTitle">Pemberitahuan</h3>
+        <p id="modalMessage">Pesan informasi</p>
+        <div class="modal-actions" id="modalActionsContainer"></div>
+      </div>
+    </div>
 
-    <main class="main-content">
-      
+    <div id="app-container">
+      <!-- SCREEN LOGIN GOOGLE -->
+      <div id="loginScreen" class="screen active">
+        <div
+          class="dashboard-card"
+          style="text-align: center; padding: 40px 20px; width: 100%"
+        >
+          <svg
+            style="
+              width: 56px;
+              height: 56px;
+              color: var(--brand-main);
+              margin: 0 auto 16px auto;
+            "
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+            />
+          </svg>
+          <h2
+            style="
+              color: var(--text-primary);
+              margin-top: 0;
+              margin-bottom: 8px;
+            "
+          >
+            Sikeka App
+          </h2>
+          <p
+            style="
+              color: var(--text-secondary);
+              font-size: 14px;
+              margin-bottom: 24px;
+            "
+          >
+            Silakan otorisasi menggunakan akun Google Anda untuk masuk ke dalam
+            sistem.
+          </p>
+          <div
+            id="googleSignInBtn"
+            style="display: flex; justify-content: center"
+          ></div>
+        </div>
+      </div>
+
       <div id="unauthorizedScreen" class="screen">
-        <div class="card center-content">
-          <h2 style="font-size: 18px; margin-bottom: 8px;">Akses Ditolak</h2>
-          <p class="text-secondary" style="margin-bottom: 24px;">Akun Google Anda (<span id="unauthEmail" class="text-primary" style="font-weight: 700;"></span>) belum terdaftar dalam sistem Sikeka. Silakan hubungi Administrator untuk mendapatkan akses.</p>
-          <button class="btn btn-outline" style="width: auto; margin: 0 auto;" onclick="logout()">Ganti Akun</button>
+        <div
+          class="dashboard-card"
+          style="text-align: center; padding: 40px 20px; margin-top: 40px"
+        >
+          <svg
+            style="
+              width: 64px;
+              height: 64px;
+              color: var(--error-text);
+              margin: 0 auto 16px auto;
+            "
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+            />
+          </svg>
+          <h3 style="color: var(--text-primary); margin-top: 0">
+            Akses Ditolak
+          </h3>
+          <p
+            style="
+              color: var(--text-secondary);
+              font-size: 15px;
+              line-height: 1.5;
+            "
+          >
+            Maaf, akun email
+            <b style="color: var(--text-primary)"
+              ><span id="unauthEmail"></span
+            ></b>
+            belum terdaftar di database sistem kami.
+          </p>
+          <p
+            style="
+              color: var(--text-secondary);
+              font-size: 14px;
+              margin-bottom: 0;
+            "
+          >
+            Silakan hubungi Pengurus Sistem untuk mendaftarkan email Anda.
+          </p>
+          <button
+            class="btn btn-outline"
+            style="margin: 24px auto 0 auto"
+            onclick="logout()"
+          >
+            Kembali ke Halaman Login
+          </button>
         </div>
       </div>
 
       <div id="dashboardScreen" class="screen">
-        <div class="top-bar">
-          <h1 class="top-bar-title">Dashboard</h1>
-          <div style="display: flex; gap: 8px;">
-            <button class="icon-btn mobile-only" onclick="toggleTheme()"><span class="themeIconContainer"></span></button>
-            <button class="icon-btn mobile-only" onclick="confirmLogout()"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg></button>
+        <div class="nav-bar sticky-top">
+          <div class="nav-bar-left">
+            <h2 class="room-title">Sistem Penilaian Kebersihan</h2>
+          </div>
+          <!-- Area Tombol Tema & Logout -->
+          <div style="display: flex; gap: 8px">
+            <button
+              class="theme-toggle"
+              onclick="toggleTheme()"
+              aria-label="Toggle Dark Mode"
+              title="Ganti Tema"
+            >
+              <span class="themeIconContainer"></span>
+            </button>
+            <button
+              class="action-btn danger"
+              onclick="confirmLogout()"
+              aria-label="Logout"
+              title="Keluar Akun"
+            >
+              <svg
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                />
+              </svg>
+            </button>
           </div>
         </div>
 
-        <div class="greeting-section">
-          <h2 class="greeting-title" id="dashUserSapaan">Ustadz ...</h2>
+        <div class="header-greeting">
+          <span class="small">Ahlan wa Sahlan,</span>
+          <span class="large" id="dashUserSapaan">Ustadz ...</span>
         </div>
 
-        <div class="grid-layout">
-          <div class="grid-col">
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">Top 3 Kamar</h3><span class="badge badge-success">Terbaik</span>
-              </div>
-              <div id="top3Container"></div>
-            </div>
-
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">Perlu Perhatian</h3><span class="badge badge-danger">Terbawah</span>
-              </div>
-              <div id="bottom3Container"></div>
+        <div class="dashboard-card">
+          <div class="card-title flex-between">
+            <span style="display: flex; align-items: center">
+              <svg
+                style="
+                  color: var(--success-bg);
+                  width: 20px;
+                  height: 20px;
+                  margin-right: 8px;
+                "
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M5 4h14l-1 6a6 6 0 01-12 0L5 4zM12 16v5M8 21h8"
+                />
+              </svg>
+              <span style="color: var(--text-primary)">3 Kamar Terbaik</span>
+            </span>
+          </div>
+          <div id="top3Container">
+            <div class="list-row">
+              <span style="color: var(--text-muted); font-weight: 400"
+                >Memuat data...</span
+              >
             </div>
           </div>
+        </div>
 
-          <div class="grid-col">
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">Jadwal Inspeksi</h3><span class="badge badge-neutral">4 Hari ke Depan</span>
-              </div>
-              <div id="jadwalMendatangContainer">
-                <div class="data-row"><span class="data-row-main text-muted">Memuat jadwal...</span></div>
-              </div>
-              <button class="btn btn-outline" style="margin-top: 16px;" onclick="navTo('bookingScreen')">Lihat Kalender Lengkap</button>
+        <div class="dashboard-card">
+          <div class="card-title flex-between">
+            <span style="display: flex; align-items: center">
+              <svg
+                style="
+                  color: var(--error-500);
+                  width: 20px;
+                  height: 20px;
+                  margin-right: 8px;
+                "
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+              <span style="color: var(--text-primary)">3 Kamar Terburuk</span>
+            </span>
+          </div>
+          <div id="bottom3Container">
+            <div class="list-row">
+              <span style="color: var(--text-muted); font-weight: 400"
+                >Memuat data...</span
+              >
             </div>
           </div>
+        </div>
+
+        <button
+          class="btn btn-outline"
+          style="width: 100%; margin-bottom: 24px"
+          onclick="navTo('klasemenScreen')"
+        >
+          <svg
+            style="width: 18px; height: 18px; margin-right: 8px"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect x="4" y="13" width="4" height="8" rx="2"></rect>
+            <rect x="10" y="9" width="4" height="12" rx="2"></rect>
+            <rect x="16" y="5" width="4" height="16" rx="2"></rect>
+          </svg>
+          Klasemen Lengkap
+        </button>
+      </div>
+
+      <div id="formScreen" class="screen">
+        <div class="nav-bar sticky-top">
+          <div class="nav-bar-left">
+            <button class="back-btn" onclick="navTo('dashboardScreen', true)">
+              <svg
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            </button>
+            <h2 class="room-title">Penilaian Kebersihan</h2>
+          </div>
+          <button class="theme-toggle" onclick="toggleTheme()">
+            <span class="themeIconContainer"></span>
+          </button>
+        </div>
+        <div class="form-progress" id="formProgressText">Halaman 1 dari X</div>
+        <div
+          class="dashboard-card"
+          style="padding: 24px"
+          id="formPagesContainer"
+        ></div>
+        <div style="display: flex; gap: 12px; margin-top: 16px">
+          <button
+            class="btn btn-outline"
+            style="flex: 1"
+            id="btnFormPrev"
+            onclick="changeFormPage(-1)"
+          >
+            Sebelumnya
+          </button>
+          <button
+            class="btn btn-primary"
+            style="flex: 1"
+            id="btnFormNext"
+            onclick="changeFormPage(1)"
+          >
+            Selanjutnya
+          </button>
+        </div>
+      </div>
+
+      <div id="bookingScreen" class="screen">
+        <div class="nav-bar sticky-top">
+          <div class="nav-bar-left">
+            <button class="back-btn" onclick="navTo('dashboardScreen', true)">
+              <svg
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            </button>
+            <h2 class="room-title">Booking Tanggal</h2>
+          </div>
+          <button class="theme-toggle" onclick="toggleTheme()">
+            <span class="themeIconContainer"></span>
+          </button>
+        </div>
+        <p
+          style="
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 24px;
+          "
+        >
+          Silakan pilih tanggal untuk mem-booking jadwal penilaian kebersihan.
+        </p>
+        <div class="dashboard-card" style="padding: 20px">
+          <div class="calendar-header">
+            <div class="calendar-month" id="calMonthYear">Bulan Tahun</div>
+            <div class="calendar-nav">
+              <button class="calendar-nav-btn" onclick="changeMonth(-1)">
+                <svg
+                  width="18"
+                  height="18"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+              </button>
+              <button class="calendar-nav-btn" onclick="changeMonth(1)">
+                <svg
+                  width="18"
+                  height="18"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="calendar-grid">
+            <div class="calendar-day-header">Min</div>
+            <div class="calendar-day-header">Sen</div>
+            <div class="calendar-day-header">Sel</div>
+            <div class="calendar-day-header">Rab</div>
+            <div class="calendar-day-header">Kam</div>
+            <div class="calendar-day-header">Jum</div>
+            <div class="calendar-day-header">Sab</div>
+          </div>
+          <div class="calendar-grid" id="calendarDays"></div>
         </div>
       </div>
 
       <div id="klasemenScreen" class="screen">
-        <div class="top-bar print-hide">
-          <h1 class="top-bar-title" id="judulKlasemen">Klasemen</h1>
-          <button class="icon-btn" onclick="cetakKlasemen()"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg></button>
+        <div class="nav-bar sticky-top print-hide">
+          <div class="nav-bar-left">
+            <button class="back-btn" onclick="navTo('dashboardScreen', true)">
+              <svg
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            </button>
+            <h2 class="room-title" id="judulKlasemen">Klasemen Lengkap</h2>
+          </div>
+          <!-- Dropdown Bulan & Tombol Cetak -->
+          <div style="display: flex; align-items: center; gap: 8px">
+            <select
+              id="bulanKlasemenDropdown"
+              class="btn btn-outline btn-small print-hide"
+              style="
+                padding: 6px 30px 6px 12px;
+                appearance: auto;
+                cursor: pointer;
+                background-color: var(--bg-surface);
+                color: var(--text-primary);
+              "
+              onchange="loadKlasemenBulanIni()"
+            >
+              <!-- Opsi diisi otomatis via JS -->
+            </select>
+            <button
+              class="btn btn-outline btn-small print-hide"
+              onclick="cetakKlasemen()"
+            >
+              <svg
+                style="width: 16px; height: 16px; margin-right: 4px"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
+                />
+              </svg>
+              Cetak
+            </button>
+          </div>
         </div>
 
-        <h2 class="print-show text-center" id="printJudulKlasemen" style="display: none; margin-bottom: 8px;">Klasemen</h2>
-        <div class="print-show text-right text-muted" id="printTimestamp" style="display: none; font-size: 12px; margin-bottom: 12px;"></div>
+        <h2
+          class="print-show"
+          id="printJudulKlasemen"
+          style="
+            display: none;
+            text-align: center;
+            margin-bottom: 8px;
+            font-size: 18px;
+            font-weight: bold;
+          "
+        >
+          Klasemen Penilaian Kebersihan Kamar
+        </h2>
+        <div
+          class="print-show"
+          id="printTimestamp"
+          style="
+            display: none;
+            text-align: right;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 12px;
+            font-weight: 500;
+          "
+        ></div>
 
-        <select id="bulanKlasemenDropdown" class="btn btn-outline print-hide" style="margin-bottom: 16px; text-align: left; justify-content: space-between;" onchange="loadKlasemenBulanIni()"></select>
-        
-        <div class="card p-0">
-          <table>
-            <thead><tr><th style="width:40px; padding-left:16px;">#</th><th>Kamar</th><th style="text-align:right; padding-right:16px;">Avg</th></tr></thead>
+        <div
+          class="dashboard-card"
+          style="padding: 0; overflow: hidden; margin-top: 8px"
+        >
+          <table class="table-hover">
+            <thead>
+              <tr>
+                <th class="rank-col">Pos</th>
+                <th>Kamar</th>
+                <th style="text-align: right">Rata-rata</th>
+              </tr>
+            </thead>
             <tbody id="fullKlasemenBody"></tbody>
           </table>
         </div>
       </div>
 
-      <div id="bookingScreen" class="screen">
-        <div class="top-bar"><h1 class="top-bar-title">Jadwal</h1></div>
-        <p class="text-secondary" style="margin-bottom: 16px;">Silakan pilih tanggal yang tersedia pada kalender untuk melakukan reservasi jadwal inspeksi asrama.</p>
-        
-        <div class="card p-0" style="max-width: 400px;">
-          <div class="cal-header">
-            <button class="icon-btn" onclick="changeMonth(-1)"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg></button>
-            <div class="cal-month" id="calMonthYear">Bulan</div>
-            <button class="icon-btn" onclick="changeMonth(1)"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg></button>
-          </div>
-          <div class="cal-weekdays"><div>Min</div><div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div>Sab</div></div>
-          <div class="cal-days" id="calendarDays"></div>
-        </div>
-      </div>
-
-      <div id="formScreen" class="screen">
-        <div class="top-bar">
-          <h1 class="top-bar-title">Inspeksi</h1>
-          <span class="text-muted" style="font-size: 13px; font-weight: 600;" id="formProgressText">1 / X</span>
-        </div>
-        
-        <div class="card p-0" style="max-width: 500px;" id="formPagesContainer"></div>
-        
-        <div style="display: flex; gap: 12px; margin-top: 20px; max-width: 500px;">
-          <button class="btn btn-outline" style="flex: 1" id="btnFormPrev" onclick="changeFormPage(-1)">Kembali</button>
-          <button class="btn btn-primary" style="flex: 1" id="btnFormNext" onclick="changeFormPage(1)">Lanjut</button>
-        </div>
-      </div>
-
       <div id="detailKamarScreen" class="screen">
-        <div class="top-bar print-hide">
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <button class="icon-btn" onclick="navTo('klasemenScreen')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg></button>
-            <h1 class="top-bar-title" id="detailKamarTitle">Kamar</h1>
+        <div class="nav-bar sticky-top print-hide">
+          <div class="nav-bar-left">
+            <button class="back-btn" onclick="navTo('klasemenScreen', true)">
+              <svg
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            </button>
+            <h2 class="room-title" id="detailKamarTitle">Nama Kamar</h2>
           </div>
+          <button class="theme-toggle" onclick="toggleTheme()">
+            <span class="themeIconContainer"></span>
+          </button>
         </div>
-        <div class="card p-0">
+
+        <div
+          class="dashboard-card"
+          style="padding: 0; overflow: hidden; margin-top: 8px"
+        >
           <table>
-            <thead><tr><th style="padding-left:16px;">Tgl</th><th>Petugas</th><th style="text-align: right; padding-right:16px;">Nilai</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Tanggal</th>
+                <th>Penginput</th>
+                <th style="text-align: right">Nilai</th>
+              </tr>
+            </thead>
             <tbody id="detailKamarBody"></tbody>
           </table>
         </div>
       </div>
 
       <div id="exportScreen" class="screen">
-        <div class="top-bar"><h1 class="top-bar-title">Data Manajemen</h1></div>
-        <div class="card" style="max-width: 500px;">
-          <h3 class="card-title" style="margin-bottom: 8px;">Upload Massal</h3>
-          <p class="text-secondary" style="font-size: 13px; margin-bottom: 20px; line-height: 1.5;">Fitur unggah massal ini disediakan khusus untuk sinkronisasi nilai Jam'iyyah Tholabah secara langsung menggunakan format file Excel (.xlsx).</p>
-          
-          <button class="btn btn-outline" style="margin-bottom: 12px;" onclick="downloadTemplateExcel()">Download Template</button>
-          <input type="file" id="fileExcelInput" accept=".xlsx, .xls" style="display: none;" onchange="handleExcelUpload(event)" />
-          <button class="btn btn-primary" onclick="document.getElementById('fileExcelInput').click()">Upload Excel (.xlsx)</button>
+        <div class="nav-bar sticky-top print-hide">
+          <div class="nav-bar-left">
+            <button class="back-btn" onclick="navTo('dashboardScreen', true)">
+              <svg
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            </button>
+            <h2 class="room-title">Impor Data Excel</h2>
+          </div>
+          <button class="theme-toggle" onclick="toggleTheme()">
+            <span class="themeIconContainer"></span>
+          </button>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 16px">
+          <div
+            class="dashboard-card"
+            style="
+              padding: 24px;
+              border: 1px dashed var(--brand-main);
+              background: var(--bg-body);
+            "
+          >
+            <div
+              style="display: flex; align-items: center; margin-bottom: 20px"
+            >
+              <div
+                style="
+                  background: var(--bg-surface);
+                  padding: 12px;
+                  border-radius: 12px;
+                  margin-right: 16px;
+                  box-shadow: var(--shadow-sm);
+                  border: 1px solid var(--border-subtle);
+                "
+              >
+                <svg
+                  style="width: 28px; height: 28px; color: var(--brand-main)"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h3
+                  style="margin: 0; font-size: 16px; color: var(--text-primary)"
+                >
+                  Impor Data Massal
+                </h3>
+                <p
+                  style="
+                    margin: 4px 0 0 0;
+                    font-size: 13px;
+                    color: var(--text-secondary);
+                  "
+                >
+                  Upload nilai menggunakan template Excel (.xlsx).
+                </p>
+              </div>
+            </div>
+
+            <button
+              class="btn btn-outline"
+              style="width: 100%; margin-bottom: 12px"
+              onclick="downloadTemplateExcel()"
+            >
+              <svg
+                style="width: 18px; height: 18px; margin-right: 8px"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+              1. Unduh Template
+            </button>
+
+            <input
+              type="file"
+              id="fileExcelInput"
+              accept=".xlsx, .xls"
+              style="display: none"
+              onchange="handleExcelUpload(event)"
+            />
+            <button
+              class="btn btn-success"
+              style="width: 100%"
+              onclick="document.getElementById('fileExcelInput').click()"
+            >
+              <svg
+                style="width: 18px; height: 18px; margin-right: 8px"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                />
+              </svg>
+              2. Unggah File
+            </button>
+            <div
+              id="uploadFileName"
+              style="
+                font-size: 12px;
+                color: var(--text-secondary);
+                text-align: center;
+                margin-top: 8px;
+                font-weight: 500;
+              "
+            ></div>
+          </div>
         </div>
       </div>
 
-    </main>
+      <div class="sticky-footer" id="mainFooter" style="display: none">
+        <div
+          class="footer-content"
+          id="footerActionContainer"
+          style="display: flex; gap: 12px; align-items: center"
+        ></div>
+      </div>
+    </div>
 
-    <nav class="bottom-nav print-hide" id="mobileBottomNav"></nav>
+    <!-- LIBRARY PEMBACA EXCEL DI BROWSER -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="script.js"></script>
-</body>
+    <!-- Script External -->
+    <script src="script.js"></script>
+  </body>
 </html>
