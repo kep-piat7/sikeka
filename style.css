@@ -69,6 +69,18 @@
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 20px;
+
+  /* Typography Tokens */
+  --font-display-size: 1.75rem;
+  --font-display-weight: 800;
+  --font-headline-size: 1.375rem;
+  --font-headline-weight: 700;
+  --font-title-size: 1.125rem;
+  --font-title-weight: 700;
+  --font-body-size: 0.875rem;
+  --font-body-weight: 600;
+  --font-label-size: 0.75rem;
+  --font-label-weight: 700;
 }
 
 html.dark {
@@ -111,6 +123,8 @@ body {
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
   background-color: var(--bg-body);
   color: var(--text-primary);
   margin: 0;
@@ -183,7 +197,7 @@ body {
 }
 
 .header-greeting .small {
-  font-size: 14px;
+  font-size: var(--font-body-size);
   font-weight: 500;
   color: var(--text-secondary);
   margin-bottom: 4px;
@@ -191,8 +205,8 @@ body {
 }
 
 .header-greeting .large {
-  font-size: 26px;
-  font-weight: 700;
+  font-size: var(--font-display-size);
+  font-weight: var(--font-display-weight);
   color: var(--brand-main);
   letter-spacing: -0.02em;
 }
@@ -223,8 +237,8 @@ body {
 }
 
 .room-title {
-  font-size: 20px;
-  font-weight: 700;
+  font-size: var(--font-headline-size);
+  font-weight: var(--font-headline-weight);
   margin: 0;
   color: var(--text-primary);
   letter-spacing: -0.01em;
@@ -275,8 +289,8 @@ body {
   border: none;
   padding: 14px 24px;
   border-radius: var(--radius-md);
-  font-weight: 600;
-  font-size: 15px;
+  font-weight: var(--font-label-weight);
+  font-size: var(--font-body-size);
   cursor: pointer;
   transition: all var(--transition-base);
   display: flex;
@@ -299,7 +313,7 @@ body {
 
 .btn-small {
   padding: 8px 16px;
-  font-size: 13px;
+  font-size: var(--font-label-size);
   border-radius: var(--radius-sm);
 }
 
@@ -362,8 +376,8 @@ body {
 }
 
 .card-title {
-  font-size: 14px;
-  font-weight: 700;
+  font-size: var(--font-label-size);
+  font-weight: var(--font-label-weight);
   text-transform: uppercase;
   margin-bottom: 8px;
   letter-spacing: 0.02em;
@@ -375,8 +389,8 @@ body {
   align-items: center;
   padding: 12px 0;
   border-bottom: 1px solid var(--border-subtle);
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
   transition: border-color var(--transition-base);
 }
 
@@ -388,8 +402,8 @@ body {
 .badge-score {
   padding: 4px 10px;
   border-radius: var(--radius-sm);
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--font-label-size);
+  font-weight: var(--font-label-weight);
   color: var(--brand-text);
 }
 
@@ -426,8 +440,8 @@ table {
 
 th {
   padding: 14px 16px;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: var(--font-label-size);
+  font-weight: var(--font-label-weight);
   text-transform: uppercase;
   color: var(--text-muted);
   background: var(--bg-surface-hover);
@@ -437,14 +451,14 @@ th {
 
 td {
   padding: 14px 16px;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
   color: var(--text-primary);
 }
 
 .rank-col {
   color: var(--text-muted);
-  font-size: 13px;
+  font-size: var(--font-label-size);
   width: 40px;
 }
 
@@ -478,8 +492,8 @@ td {
 }
 
 .calendar-month {
-  font-size: 18px;
-  font-weight: 700;
+  font-size: var(--font-title-size);
+  font-weight: var(--font-title-weight);
   color: var(--brand-main);
 }
 
@@ -515,8 +529,8 @@ td {
 
 .calendar-day-header {
   text-align: center;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: var(--font-label-size);
+  font-weight: var(--font-body-weight);
   color: var(--text-muted);
   padding-bottom: 8px;
 }
@@ -528,8 +542,8 @@ td {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
   cursor: pointer;
   transition: all var(--transition-base);
   border: 1px solid transparent;
@@ -569,7 +583,7 @@ td {
 }
 
 .booked-name {
-  font-size: 9px;
+  font-size: 0.625rem;
   font-weight: 500;
   text-transform: uppercase;
   margin-top: 2px;
@@ -660,14 +674,14 @@ td {
   margin-top: 0;
   margin-bottom: 12px;
   color: var(--text-primary);
-  font-size: 18px;
-  font-weight: 700;
+  font-size: var(--font-title-size);
+  font-weight: var(--font-title-weight);
   padding-right: 24px;
 }
 
 .modal-box p {
   color: var(--text-secondary);
-  font-size: 14px;
+  font-size: var(--font-body-size);
   margin-bottom: 24px;
   line-height: 1.5;
   margin-top: 0;
@@ -689,8 +703,8 @@ td {
 }
 
 .form-header-group {
-  font-size: 16px;
-  font-weight: 700;
+  font-size: var(--font-title-size);
+  font-weight: var(--font-title-weight);
   color: var(--brand-main);
   border-bottom: 2px solid var(--border-subtle);
   padding-bottom: 8px;
@@ -707,7 +721,7 @@ td {
 .form-row label {
   font-weight: 600;
   color: var(--text-primary);
-  font-size: 15px;
+  font-size: var(--font-body-size);
 }
 
 .form-row input[type="number"] {
@@ -717,7 +731,7 @@ td {
   border-radius: var(--radius-sm);
   background: var(--bg-surface);
   color: var(--text-primary);
-  font-size: 15px;
+  font-size: var(--font-body-size);
   text-align: center;
   outline: none;
   transition: all var(--transition-base);
@@ -731,8 +745,8 @@ td {
 }
 
 .form-progress {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--font-label-size);
+  font-weight: var(--font-label-weight);
   color: var(--text-muted);
   text-align: center;
   margin-bottom: 16px;
@@ -839,7 +853,7 @@ td {
   th {
     position: static !important;
     background-color: #f1f5f9 !important;
-    font-weight: bold !important;
+    font-weight: var(--font-headline-weight) !important;
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
     border: 1px solid #ddd !important;
