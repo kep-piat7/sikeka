@@ -36,7 +36,7 @@ window.onload = function () {
     if (typeof google !== "undefined" && google.accounts) {
       google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleAuth });
       google.accounts.id.renderButton(document.getElementById("googleSignInBtn"), { theme: "outline", size: "large", width: 250 });
-    } else { customAlert("Gagal memuat Google Login."); }
+    } else { customAlert("Gagal memuat sistem Google Sign-In. Silakan periksa koneksi Anda.", "Sistem Error"); }
   }
 };
 
@@ -77,7 +77,7 @@ function initAppData() {
     navTo("dashboardScreen");
   }).catch(err => {
     localStorage.removeItem("sikeka_user_email");
-    customAlert("Koneksi gagal. Muat ulang.", "Error", () => window.location.reload());
+    customAlert("Gagal terhubung ke server Sikeka. Silakan muat ulang halaman.", "Koneksi Gagal", () => window.location.reload());
   });
 }
 
@@ -226,7 +226,7 @@ function renderCalendar() {
 }
 
 function prosesBooking(dateKey) {
-  customConfirm(`Reservasi jadwal tanggal ${dateKey}?`, () => {
+  customConfirm(`Reservasi jadwal inspeksi asrama untuk tanggal ${dateKey}?`, () => {
     document.getElementById("globalLoader").classList.add("active");
     callAPI("submitBooking", { dateKey: dateKey, namaUser: CURRENT_USER.namaLengkap }).then(() => window.location.reload())
     .catch(err => { document.getElementById("globalLoader").classList.remove("active"); customAlert(err.message); });
@@ -252,7 +252,7 @@ function changeFormPage(dir) {
   document.getElementById(`formPage_${currentFormPage}`).classList.remove("active"); currentFormPage += dir;
   if (currentFormPage >= SYUQQOH_GROUPS.length) {
     currentFormPage--; document.getElementById(`formPage_${currentFormPage}`).classList.add("active");
-    customConfirm("Simpan data inspeksi sekarang?", executeSavePenilaian); return;
+    customConfirm("Simpan data nilai inspeksi asrama sekarang?", executeSavePenilaian); return;
   }
   document.getElementById(`formPage_${currentFormPage}`).classList.add("active"); updateFormNavigation(); window.scrollTo(0,0);
 }
@@ -269,7 +269,7 @@ function executeSavePenilaian() {
     g.rooms.forEach(r => { let v = document.getElementById(`inp_${r.replace(/\s+/g,"_")}`).value; if(v==="" && errIdx===-1) errIdx = i; payload[r] = v; });
   });
   if(errIdx !== -1) {
-     customAlert("Lengkapi seluruh form."); document.getElementById(`formPage_${currentFormPage}`).classList.remove("active");
+     customAlert("Lengkapi seluruh form penilaian sebelum mengirim data.", "Form Belum Lengkap"); document.getElementById(`formPage_${currentFormPage}`).classList.remove("active");
      currentFormPage = errIdx; document.getElementById(`formPage_${currentFormPage}`).classList.add("active"); updateFormNavigation(); return;
   }
   document.getElementById("globalLoader").classList.add("active");
